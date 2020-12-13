@@ -1,9 +1,12 @@
 import Head from 'next/head'
 import { NextSeo } from 'next-seo'
-import { Title } from '../components/index/Title'
+import { Posts } from '../components/index/Posts'
 import { Navgation } from '../components/index/Navgation'
 
-export default function Home() {
+import { getAllPosts } from '../lib/api/Posts'
+
+export default function Home({ allPosts }) {
+  console.log(allPosts)
   return (
     <>
       <Head>
@@ -15,7 +18,16 @@ export default function Home() {
         description='程式學習的成長紀錄'
       />
       <Navgation />
-      <Title />
+      <Posts title={"aaaa"} />
     </>
   )
+}
+
+export async function getStaticProps() {
+  const allPosts = await getAllPosts()
+  return {
+    props: {
+      allPosts
+    }
+  }
 }
