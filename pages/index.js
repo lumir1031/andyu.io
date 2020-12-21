@@ -5,8 +5,8 @@ import { Navgation } from '../components/index/Navgation'
 
 import { getAllPosts } from '../lib/api/Posts'
 
-export default function Home({ allPosts }) {
-  console.log(allPosts)
+export default function Home({ posts }) {
+
   return (
     <>
       <Head>
@@ -18,16 +18,21 @@ export default function Home({ allPosts }) {
         description='程式學習的成長紀錄'
       />
       <Navgation />
-      <Posts title={"aaaa"} />
+      {
+        posts.map((post, idx) =>
+          <Posts post={post} key={idx} />
+        )
+      }
+
     </>
   )
 }
 
 export async function getStaticProps() {
-  const allPosts = await getAllPosts()
+  const posts = await getAllPosts()
   return {
     props: {
-      allPosts
+      posts
     }
   }
 }
