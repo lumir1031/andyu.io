@@ -9,8 +9,12 @@
     "export": "next export"
   },
   "dependencies": {
+    "@mdx-js/loader": "^1.6.22",
+    "@mdx-js/react": "^1.6.22",
+    "@next/mdx": "^10.0.5",
     "autoprefixer": "^10.1.0",
     "contentful": "^8.1.4",
+    "gray-matter": "^4.0.2",
     "next": "^10.0.3",
     "next-seo": "^4.17.0",
     "postcss": "^8.2.1",

@@ -1,14 +1,13 @@
 import Head from 'next/head'
 import { NextSeo } from 'next-seo'
-import { Posts } from '../components/index/Posts'
+import { Posts } from '../components/index/Post'
+import { getAllPosts } from '../lib/api/posts'
 import { Navgation } from '../components/index/Navgation'
 
-import { getAllPosts } from '../lib/api/Posts'
-
 export default function Home({ posts }) {
-
+  console.log(posts);
   return (
-    <>
+    <div>
       <Head>
         <title>Andyu</title>
         <link rel='icon' href='/favicon.ico' />
@@ -18,18 +17,15 @@ export default function Home({ posts }) {
         description='程式學習的成長紀錄'
       />
       <Navgation />
-      {
-        posts.map((post, idx) =>
-          <Posts post={post} key={idx} />
-        )
-      }
+      <article>
 
-    </>
+      </article>
+    </div>
   )
 }
 
 export async function getStaticProps() {
-  const posts = await getAllPosts()
+  const posts = await getAllPosts(['slug', 'title', 'date', 'excerpt', 'categories'])
   return {
     props: {
       posts
