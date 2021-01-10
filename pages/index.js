@@ -1,11 +1,9 @@
 import Head from 'next/head'
 import { NextSeo } from 'next-seo'
-import { Posts } from '../components/index/Post'
 import { getAllPosts } from '../lib/api/posts'
 import { Navgation } from '../components/index/Navgation'
 
 export default function Home({ posts }) {
-  console.log(posts);
   return (
     <div>
       <Head>
@@ -18,14 +16,22 @@ export default function Home({ posts }) {
       />
       <Navgation />
       <article>
-
+        {
+          posts.map(post => (
+            <div key={post.slug} >
+              <a href={`/posts/${post.slug}`}>
+                <h1>{post.title}</h1>
+              </a>
+            </div>
+          ))
+        }
       </article>
     </div>
   )
 }
 
 export async function getStaticProps() {
-  const posts = await getAllPosts(['slug', 'title', 'date', 'excerpt', 'categories'])
+  const posts = await getAllPosts(['slug', 'title', 'excerpt', 'date', 'categories'])
   return {
     props: {
       posts

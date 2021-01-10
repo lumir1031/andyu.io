@@ -15,7 +15,6 @@ async function getStaticProps({ params }) {
     'slug',
     'title',
     'date',
-    'excerpt',
     'categories',
     'content'])
   return {
