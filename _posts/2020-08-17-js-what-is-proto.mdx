@@ -2,9 +2,10 @@
 title: "[ JavaScript ] 把 __proto__ 剝開吧！"
 date: "2020-08-17"
 categories: "JavaScript"
-excerpt: "在 JavaScript 內物件可以透過 prototype 自己定義方法，而物件 new 出來的實體要使用這些方法，就需要透過原型鏈 ( `__proto__` ) 來找到上層 prototype 內定義的屬性。"
+excerpt: "在 JavaScript 內物件可以透過 prototype 自己定義方法，而物件 new 出來的實體要使用這些方法，就需要透過原型鏈 ( `__proto__` ) 來找到上層 prototype 內定義的屬性。"
 ---
-在 JavaScript 內物件可以透過 prototype 自己定義方法，而物件 new 出來的實體要使用這些方法，就需要透過原型鏈 ( `__proto__` ) 來找到上層 prototype 內定義的屬性。
+
+在 JavaScript 內物件可以透過 prototype 自己定義方法，而物件 new 出來的實體要使用這些方法，就需要透過原型鏈 ( `__proto__` ) 來找到上層 prototype 內定義的屬性。
 
 當我們想在陣列內增加數字，第一個想到的就是可以透過 `push()` 來達成：
 ```javascript
