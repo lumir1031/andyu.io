@@ -1,0 +1,133 @@
+---
+title: "[ Rails ] 用 Jbuilder 來生成 JSON 吧！ "
+date: "2020-06-17"
+categories: "Rails"
+excerpt: "在這次的專案中，為了使用前端框架而必須跟 Rails View Helper 暫時說再見，那我該怎麼使用 API 傳遞資料給前端呢？"
+---
+在這次的專案中，為了使用前端框架而必須跟 Rails View Helper 暫時說再見，那我該怎麼使用 API 傳遞資料給前端呢？<br/>
+
+通常在前端較為吃重的情況下，我們會透過 JSON 將資料打包傳給前端，而在 Rails 中我們可以使用 Jbuilder 來整理我們的 API 。
+
+<br/>
+### 什麼是 Jbuilder ?
+其實就跟我們平常在寫的 `html.erb` 一樣，只是畫面並不是 render 為 `html` 格式。<br/>他在 View 的資料夾內將會是結尾 `json.jbuilder` 的檔案，並且不用 `respond_to` 選擇我要轉的格式，就能直接輸出 JSON 的形式，得到我們想要的資料。
+![](https://i.imgur.com/gy6VyAH.png)
+
+<br/>
+### 怎麼使用 Jbuilder ?
+先在 controller 把自己要傳送的資料先打包成實體變數，這樣就可以在 View 內取得自己要的資訊。
+```ruby
+  def index
+    @project = current_user.projects.find(params[:project_id])
+    @tasks = @project.tasks
+  end
+```
+接著在 Jbuilder 內只要加上 `json.` + `key` 就可以開始寫我想要的資料，<br/>
+比如下面我就能透過迴圈得到 `task` 的 `id`、`title`、`tag`、`date`、`description`、`project_id`、`project_title`
+
+```ruby
+  json.tasks do
+    json.array! @tasks do |task|
+      json.id task.id
+      json.title task.title
+      json.tags task.tag_items
+      json.date task.date
+      json.description task.description
+      json.project_id task.project.id
+      json.project_title task.project.title
+    end
+  end
+```
+
+輸出後的表格：
+
+```ruby
+{
+   "tasks":[
+      {
+         "id": 3,
+         "title": "第三方登入_FB(許願池)",
+         "tags": ["ff"],
+         "date": null,
+         "description": "undefined"
+         "project_id": 2,
+         "project_title": "TomaTokei",
+      },
+      {
+         "id": 1,
+         "title": "Github issue",
+         "tags": ["HTML"],
+         "date": null,
+         "description": "限時要把票完成"
+         "project_id": 2,
+         "project_title": "TomaTokei",
+      }
+   ]
+}
+```
+至於要怎麼看到這些表格？<br/>
+在網址的後面加上 `.json` 就會自己去讀到 JSON 的這包資料了！
+
+<br/>
+###  資料設計
+在這次實作中，才知道原來設計 API 是非常重要的，<br/>
+舉例來說，當初我把 `project` 的資訊也都包在 `task` 內，明明大家的 `project` 資訊都是相同的，只需要單獨拉出來，就不需要每次都在 `task` 撈一遍了！
+
+```ruby
+json.project do
+  json.id @project.id
+  json.title @project.title
+
+  json.tasks do
+    json.array! @tasks.order(id: :desc) do |task|
+      json.id task.id
+      json.title task.title
+      json.tags task.tag_items
+      json.date task.date
+      json.description task.description
+    end
+  end
+end
+```
+輸出後表格：
+
+```ruby
+{
+   "project":{
+      "id": 2,
+      "title": "TomaTokei",
+      "tasks":[
+         {
+            "id": 3,
+            "title": "第三方登入_FB(許願池)",
+            "tags":[ "ff" ],
+            "date": null,
+            "description": "undefined"
+         },
+         {
+            "id": 1,
+            "title": "Github issue",
+            "tags": [ "HTML" ],
+            "date": null,
+            "description": "限時要把票完成"
+         }
+      ]
+   }
+}
+```
+這樣更資料格式看起來更漂亮了！<br/>
+
+雖然這些資料目前還少少的看起來還好，但當數量一多就會變得非常雜亂也不好使用，因此規劃好可以使之後的路走起來更舒服XD
+
+
+---
+
+參考資料：
+- Jbuilder: generate JSON objects with a Builder-style DSL<br/>
+[https://github.com/rails/jbuilder](https://github.com/rails/jbuilder)
+- 為你自己學 Ruby on Rails<br/>
+[https://railsbook.tw/chapters/22-api-mode.html#output-json-with-jbuilder](https://railsbook.tw/chapters/22-api-mode.html#output-json-with-jbuilder)
+
+
+
+

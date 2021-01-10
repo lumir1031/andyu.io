@@ -1,0 +1,76 @@
+---
+title: "[ jQuery ] 原始碼新手村 - part 3"
+date: "2020-08-03"
+categories: "JavaScript"
+excerpt: "[ 原始碼新手村 Part3 ] 在 jQuery 使用 `$("div.foo")` 時，都覺得一切就是那麼單純容易，但其實背後默默做了很多不為人知的心酸血淚，到底為什麼只需要寫這短短幾個字，就可以對這些元素做這做那咧。"
+---
+[ 原始碼新手村 Part3 ] 在 jQuery 使用 `$("div.foo")` 時，都覺得一切就是那麼單純容易，但其實背後默默做了很多不為人知的心酸血淚，到底為什麼只需要寫這短短幾個字，就可以對這些元素做這做那咧。
+<br/>
+<br/>
+
+### jQuery 選取器
+jQuery 最令人熟悉的，莫過於起手式的 `$` 字號，舉例來說 `$("div.foo")` 只需要 `$` 加上 CSS 選取器字串，就能對該元素進行操作，能讓我們這麼方便的使用，都要感謝以下這段變數宣告：
+
+```javascript
+ jQuery = function (selector, context) {
+   // The jQuery object is actually just the init constructor 'enhanced'
+   // Need init if jQuery is called (just allow error to be thrown if not included)
+   return new jQuery.fn.init(selector, context);
+ };
+```
+**要讓這串程式碼變得平易近人，就先從 `$` 到底怎麼來的說起：**<br/>
+除了 `$` 外，在呼叫 jQuery 函式時，也很常看到 `jQuery("div.foo")` 或是 `jQuery.ajax` 的方式，只要滑到原始碼的最下面，就可以發現 jQuery = $ 這件事情是有被定義的：
+
+![](https://i.imgur.com/90AiTSi.png)
+
+除了定義 `window.jQuery = window.$ = jQuery;` 之外，也必須有 `$` 跟 `jQuery` 被其他程式碼覆蓋的防錯措施，並且藉由 `return jQuery`，讓這些值最後都會統整回傳至 `jQuery` 的變數中。<br/>
+
+
+**那 function (selector, context) { } 又在做些什麼：**<br/>
+在 jQuery 的手冊裡講到，`selector` 是平常我們在寫 `$("div.foo")` 中 `( )` 內的 HTML 元素，函式會藉由傳遞進來的參數，看 DOM 元素內有沒有符合的 HTML 字串集合。
+
+而 `context` 可以為一個元素、選取器或是 jQuery 本身，比較常見的舉例：
+```javascript
+  $( "div.foo" ).click(function() {
+    $( "span", this ).addClass( "bar" );
+  });
+```
+以及
+```javascript
+  $( "div.foo" ).click(function() {
+    $( this ).slideUp();
+  });
+```
+藉由 `this` 的 DOM 元素，就可以去找到這個 this 的 scope 內的 HTML 元素去做更動。
+<br/>
+<br/>
+
+### 回傳 jQuery.fn.init
+`return new jQuery.fn.init(selector, context);`<br/>
+為什麼明明開頭是 `jQuery` 最後卻要回傳 `jQuery.fn.init`？
+
+這要看到下一行的 `jQuery.fn = jQuery.prototype` ，在 prototype 內我們會建立一些可以使用的方法，而藉由這樣的方式 init 產生的值就能夠直接使用 `get` 、 `css` 、 `map` 等等的方法了。
+
+所以 `jQuery.fn.init` 就是 `jQuery.fn` 底下的一種方法，像之後也會碰到的 `jQuery.fn.extend` 也是 `jQuery.fn` 擴充函式的一種方式。
+<br/>
+<br/>
+
+### 為什麼要加 new
+
+如果沒有加上 new，`jQuery.fn.init()` 的 this 指向及回傳的都是 jQuery.fn，這樣 `$("html")` 和 `$("span")` 在讀取時都會指向同個物件，無法區分誰是誰。但如果加上 `new` 後，就能夠替 jQuery 創造一個新的實體，這樣每次的執行對象都會是不同的。
+
+**針對 new 主題的文章： [[ JavaScript ] new 到底在做什麼](https://andyu.io/2020/08/05/what-is-new/)**
+
+
+雖然看似短短的幾行程式碼，卻替大家的方便帶來無限的快樂。<br/>
+下一篇也會繼續來看 `jQuery.fn` 還有哪些其他可以使用的東西！
+
+---
+
+參考資料：
+- jQuery source code<br/>
+[https://code.jquery.com/](https://code.jquery.com/)
+- jQuery API<br/>
+[https://api.jquery.com/jquery/#jQuery1](https://api.jquery.com/jquery/#jQuery1)
+- jQuery 2.0.3 源码分析core - 整体架构<br/>
+[https://www.cnblogs.com/aaronjs/p/3278578.html](https://www.cnblogs.com/aaronjs/p/3278578.html)

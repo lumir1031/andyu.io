@@ -1,0 +1,71 @@
+---
+title: "[ JavaScript ] IIFE 之說完馬上做 ! "
+date: "2020-07-17"
+categories: "JavaScript"
+excerpt: "function expression 通常都會搭配**匿名函式**使用，這也關聯到常跟匿名函式綁在一起的 IIFE 了，那什麼是 IIFE ？"
+---
+[上一篇](https://andyu.io/2020/07/14/js-expressions-statements/)講到 function expression 通常都會搭配**匿名函式**使用，這也關聯到常跟匿名函式綁在一起的 IIFE 了，那什麼是 IIFE ？
+<br/>
+
+## IIFE (Immediately Invoked Function Expression)
+
+**立即執行函式**，又稱作自執行匿名函式 (Self-Executing Anonymous Function)，一個定義完就能夠馬上執行的函式，並且使用後就結束。
+
+他跟 function expression 有什麼關係呢？跟名字顯示的一樣，關係是他本來就是 function expression，只是他能夠**立即執行**。<br/>
+
+舉例：<br/>
+一般情況的 function expression
+```javascript
+  var greeting = function() {
+    console.log('hello');
+  }
+
+  greeting();
+
+  // 需要另外呼叫才會執行
+```
+立即函式
+```javascript
+  var greeting = function() {
+    console.log('hello');
+  }();
+
+  // 直接執行印出 hello
+```
+-<br/>
+如果不想要指定變數，又想要執行匿名函式的話，就會遇到語法錯誤：
+
+```javascript
+/* 錯誤的範例 */
+function() {
+  console.log('hello');
+}();
+
+// SyntaxError: Function statements require a function name
+```
+只需要在 function 外面再包上一層 `()` 讓 JavaScript 在執行時，可以覺得這個匿名函式是個 function statement ：
+```javascript
+/* 正確的範例 */
+(function () {
+  console.log('hello');
+}());
+
+// hello
+```
+<br/>
+### IIFE 的好處
+
+可以**一次性**的定義方法並且同時執行，因此使用起來的安全性更高。<br/>
+而且在函式內宣告的變數只會在函式內的 `{ }` 執行，不會影響到全域範疇，能夠減少全域變數的產生，這樣就可以避免在函式內定義的變數影響到其他函式的變數。<br/>
+除此之外，在執行程式時，不用搜索全域變數，直接找到範疇內的變數執行，增加些許的效能。
+
+
+---
+
+參考資料：
+- MDN web docs<br/>
+[https://developer.mozilla.org/zh-TW/docs/Glossary/IIFE](https://developer.mozilla.org/zh-TW/docs/Glossary/IIFE)
+- what is self-executing anonymous fun(https://medium.com/@nataliecardot/immediately-invoked-function-expressions-iifes-explained-501baf835396)ction or what is this code doing?<br/>
+[https://stackoverflow.com/questions/14322708/what-is-self-executing-anonymous-function-or-what-is-this-code-doing](https://stackoverflow.com/questions/14322708/what-is-self-executing-anonymous-function-or-what-is-this-code-doing)
+- Immediately Invoked Function Expressions (IIFEs) Explained<br/>
+[https://medium.com/@nataliecardot/immediately-invoked-function-expressions-iifes-explained-501baf835396](https://medium.com/@nataliecardot/immediately-invoked-function-expressions-iifes-explained-501baf835396)

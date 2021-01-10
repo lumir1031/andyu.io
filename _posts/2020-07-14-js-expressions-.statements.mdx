@@ -1,0 +1,50 @@
+---
+title: "[ JavaScript ] expressions 跟 statements"
+date: "2020-07-14"
+categories: "JavaScript"
+excerpt: "expressions 跟 statements 在 JavaScript 裡面有什麼不同？看似很簡單的事情卻又不知道怎麼理解才是正確的，先把筆記記錄下來讓自己有個記憶點。"
+---
+expressions 跟 statements 在 JavaScript 裡面有什麼不同？看似很簡單的事情卻又不知道怎麼理解才是正確的，先把筆記記錄下來讓自己有個記憶點，如果有任何不正確也請多指教！
+
+### Expressions
+表達式 `expressions` 會產生一個**值**，並且可以寫在任何需要**值**的地方。<br/>
+比如 function 中的 `參數` 或是可以在 `=` 右邊的 JavaScript 語法。更簡單來說，只要輸入的程式碼可以回傳一個**值**就是 expressions。<br/>
+舉例：
+```javascript
+123 // 數字
+"javascript" // 字串
+function(x){ /* do something */ } // 函式定義
+hey(); // 函式呼叫 && 帶有參數的函式呼叫
+[] // array
+a = 2
+```
+在瀏覽器內，輸入 `a = 1` 就會直接得到 `1` 的值
+![](https://i.imgur.com/hWIwNFO.png)
+
+### Statements
+陳述句 `statements` 比較像執行動作，比如迴圈或 `if` 就是 statements 的一種。並且是無法被指定，比如我們無法將 `while` 指定給某個變數，也無法直接回傳一個**值**。<br/>
+舉例：
+```javascript
+if...else
+while
+switch
+break
+var x
+```
+在瀏覽器輸入 `var a` 會取得 `undefined`，同理 `var a = 1` 也是一樣。
+![](https://i.imgur.com/wAuDVsS.png)
+也無法讓 statements 被宣告。
+```javascript
+var a = if (i > 0) { console.log('heyyy') }  // SyntaxError
+```
+
+---
+
+參考資料：
+- Expressions versus statements in JavaScript<br/>
+[https://2ality.com/2012/09/expressions-vs-statements.html](https://2ality.com/2012/09/expressions-vs-statements.html)
+- MDN web docs<br/>
+[https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements)
+
+
+

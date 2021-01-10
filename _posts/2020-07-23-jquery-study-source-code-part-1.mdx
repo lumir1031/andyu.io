@@ -1,0 +1,99 @@
+---
+title: "[ jQuery ] 原始碼新手村 - part 1"
+date: "2020-07-23"
+categories: "JavaScript"
+excerpt: "前人都說閱讀原始碼是幫助自己成長的好方法之一，剛好趁放暑假期間藉由閱讀 jQuery 的原始碼來練習，並且學習理解新東西以及複習自己知道的東西，接下來會分幾個 part 來寫一些自己的學習心得！"
+---
+前人都說閱讀原始碼是幫助自己成長的好方法之一，剛好趁放暑假期間藉由閱讀 jQuery 的原始碼來練習，並且學習理解新東西以及複習自己知道的東西，接下來會分幾個 part 來寫一些自己的學習心得！
+<br/>
+<br/>
+
+### 為什麼是 jQuery ?
+剛好也在學習 JavaScript，也有耳聞 jQuery 的原始碼長度是新手村等級的，雖然作為一個菜逼八難免還是對那 1 萬行的程式碼小小抖了那麼一下 (((ﾟдﾟ)))，但作為切入點應該也算是一個不錯的挑戰。
+<br/>
+<br/>
+
+### 那就開始吧
+
+先從 jQuery 本身的架構來看的話，就會發現其實他的基本架構並不複雜，刪除編寫 jQuery 邏輯的部分，其實就只剩下下面的這幾行程式碼：
+```javascript
+(function(global, factory) {
+    // ...略
+}(typeof window !== "undefined" ? window : this, function(window, noGlobal) {
+    // jQuery method ...略
+
+    if ( typeof noGlobal === "undefined" ) {
+        window.jQuery = window.$ = jQuery;
+    }
+
+    return jQuery;
+}));
+```
+jQuery 本身為一個 [IIFE（自執行匿名函式）](https://andyu.io/2020/07/17/js-iife/)，自動執行「一次」要建構的程式碼後就會消失，這能令程式碼執行起來更安全；而且宣告的所有變數都只會在這個函式內存在，藉此可以避免影響及污染到這個 Library 外的程式碼。
+
+舉例來說，我呼叫完一次 `$.map` 後，這個 IIFE 就會死翹翹。下一次再呼叫的話，就會長出一個新的 IIFE 後再死翹翹。
+<br/>
+<br/>
+
+接著來看看這個 IIFE 內在做哪些事情，在函式內有 `global` 跟 `factory` 兩個參數，
+### 那麼函式內的參數在做什麼事？
+
+```javascript
+(function (global, factory) {
+  // ...略
+})(typeof window !== "undefined" ? window : this,
+   function (window, noGlobal){
+    // ...略
+    }
+  );
+```
+由於 IIFE 的使用方式為在函式後方直接 `()` 呼叫，以這個有兩個參數的函式舉例的話：
+
+```javascript
+(function (arg1, arg2){
+  //....
+}( arg1, arg2 ) /* <--- call function */
+```
+
+先來看一下 `arg1` 等於 `global`，對應傳入的引數為：<br/>
+`typeof window !== "undefined" ? window : this`<br/>
+目的在判斷執行的狀態是否為瀏覽器。
+
+而 `arg2` 等於 `factory` 的傳入引數為：<br/>
+`function (window, noGlobal) { ... }`<br/>
+這是一段匿名函式，裡面包含了 jQuery 的主要執行邏輯，所以資訊量非常多。
+<br/>
+<br/>
+
+
+上面提到了 `global` 傳進來的內容是為了要判斷是否為瀏覽器，
+### 那麼到底怎麼判斷是否為瀏覽器？
+
+`window` 在瀏覽器中負責用來與 JavaScript 作為溝通的窗口，所以當在瀏覽器的狀態下，要執行的程式就會在 `window` 內執行。由於 window 只會存在瀏覽器中，因此我們就能夠透過 `typeof` 去確認當下執行的環境 `window` 到底是否存在。
+
+舉例來說，在「 開發者工具 」裡面輸入 `typeof window` 會得到 `object`<br/>
+**>> `瀏覽器`**
+![](https://i.imgur.com/p6RNXbC.png)
+在「 本地 server 」狀態內會得到 `undefined`<br/>
+**>> `terminal`**
+![](https://i.imgur.com/HsO2Nm3.png)
+
+因為在本地 server (node.js) 的情境下， `this` 指的會是 `Global`（跟上面的 global 參數不同意思）。
+
+利用這個特性，就能夠透過 `typeof window !== "undefined" ? window : this` 讓 jQuery 可以知道目前執行的環境是否為瀏覽器的狀態。
+<br/>
+<br/>
+
+之前在找 IIFE 資料時，常常都會看到跟 jQuery 原始碼的資訊，原來 jQuery 本身就是一個 IIFE ，也藉由這次知道瀏覽器與本地 server 更認識了 window 和 global 的執行環境。
+
+下一篇會是了解函式主體內的 `typeof module === "object" && typeof module.exports === "object"` 判斷在做些什麼，希望我可以順利達成任務(˘ㅅ˘)。
+
+---
+
+參考資料：
+- jQuery source code<br/>
+[https://code.jquery.com/](https://code.jquery.com/)
+- Confusing code, global object vs. DOM window vs. fake DOM window<br/>
+[https://github.com/jquery/jquery/issues/3426](https://github.com/jquery/jquery/issues/3426)
+- JQuery source code learning (1) overview<br/>
+[https://developpaper.com/jquery-source-code-learning-1-overview/](https://developpaper.com/jquery-source-code-learning-1-overview/)

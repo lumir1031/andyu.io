@@ -1,0 +1,63 @@
+---
+title: "[ JavaScript ] Lexical Scope"
+date: "2020-09-08"
+categories: "JavaScript"
+excerpt: "為什麼被函數包好好的變數不會干擾到外界，也不會被外面的變數給影響呢？那就問問神奇的 Lexical Scope 吧！"
+---
+為什麼被函數包好好的變數不會干擾到外界，也不會被外面的變數給影響呢？那就問問神奇的 Lexical Scope 吧！
+
+Scope 主要作為查找變數的規則，而他又分為兩種：
+1. Lexical Scope（語彙範疇）
+2. Dynamic Scope（動態範疇）
+
+而 JavaScript 又以 **Lexical Scope 為主**，因此在程式執行上扮演了非常重要的角色。
+
+## Lexical Scope 語彙範疇
+語彙範疇與動態範疇的最大差異在於，前者「查找變數時」是以「變數在哪被呼叫」作為判斷。要知道會在哪邊被呼叫，就需要以**巢狀結構**作為基礎。
+
+```javascript
+// 巢狀結構：若當下的函數範疇內找不到符合的變數，就會一層一層往外尋找。
+```
+![](https://i.imgur.com/eCY0e57.png)
+
+將每個函數都當成是一個獨立的個體，當在個體內找不到符合的變數，就會向上尋找，直到找不到噴錯為止。但也因為函數是獨立的個體，所以他不能去騷擾不在自己範圍內函數。
+
+以下舉幾個例子：
+```javascript
+// (O) 向上尋找變數 -> 成立！
+function x() {
+  var a = 1;
+  function z() {
+    console.log(a);
+  }
+  z();
+}
+x();
+```
+```javascript
+// (X) 不能打擾別的函數 -> 不成立！
+function x() {
+  var a = 1;
+};
+function y() {
+  console.log(a)
+};
+y(); // a is not defined
+```
+```javascript
+// (X) 外國不得干預他國內政 -> 不成立！
+function x() {
+  var a = 1;
+};
+console.log(a); // a is not defined
+```
+---
+總結一下 Lexical Scope 的重點：<br/>
+**函數能向上尋找並使用外層變數，而被包在函數內層的變數則不能被外面取用。**
+
+---
+
+參考資料：
+- You Don't Know JS: Scope & Closure <br/>
+- 所有的函式都是閉包：談 JS 中的作用域與 Closure<br/>
+[https://blog.techbridge.cc/2018/12/08/javascript-closure/](https://blog.techbridge.cc/2018/12/08/javascript-closure/)

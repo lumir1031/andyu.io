@@ -1,0 +1,77 @@
+---
+title: "[ Git ] pull 跟 fetch 之就是要多你一點點"
+date: "2020-07-06"
+categories: "Git"
+excerpt: "團體專案協作時最常做的事除了 commit 外，就是將遠端分支上的檔案更新到本地端。最常見的就是 fetch 和 pull 了，所以使用上會有哪邊不一樣呢？"
+---
+團體專案協作時最常做的事除了 commit 外，就是將遠端分支上的檔案更新到本地端。最常見的就是 fetch 和 pull 了，所以使用上會有哪邊不一樣呢？
+
+<br/>
+### 「 fetch在幹嘛？ 」
+取得遠端分支 ，並且下載到本地端。
+
+先來看看平常 fetch 時最常用的一段指令，這個指令會把預設的 `origin` 遠端節點的分支全部更新到專案的本地端。
+```shell
+$ git fetch
+```
+文字跟 command 不夠具象的話可以參考下面的圖片：<br/>
+【 分支原本的樣子 】
+![](https://i.imgur.com/2bdJddC.png)
+我的組員更新了遠端檔案，所以我 `$ git fetch` 了檔案下來<br/>
+【 fetch 後將 origin/master 往前推了一格 】
+![](https://i.imgur.com/5IJhUzh.png)
+
+
+ ▍**那如果我只想要某個分支可以嗎？**<br/>
+當然是可以，只要在遠端節點後面加上分支名稱就可以了！
+```shell
+$ git fetch origin features/blog_update
+```
+
+不想要遠端節點是預設的 `origin` 的話，只要 `$ git remote add katsudon` 新增一個遠端節點（命名可以自己決定），接著在 `git fetch` 後面加上 `katsudon`。如果要指定 branch 的話，也一樣在遠端節點後面加上分支名稱就好了！
+```shell
+$ git fetch katsudon
+```
+
+ ▍**想要 fork 別人專案也可以用遠端 fetch 嗎？**<br/>
+如同上面的舉例，一樣透過 `$ git remote add` 新增遠端節點，並同時附上原本的 repository，之後只需要 fetch 那個遠端分支就會將原本的 repository 更新到自己的專案囉。
+```
+$ git remote add katusdon https://github.com/lumir1031/katsudon.git
+```
+
+這時候就會有疑惑，如果我只 fetch 遠端的分支，那我本地開發的 branch 該怎麼辦呢？<br/>
+hen 簡單，只需要將本地分支及遠端分支 merge、rebase、cherry-pick 就可以了。<br/>（ 回顧一下：[[ Git ] cherry-pick 之大人也可以做選擇！](https://git-scm.com/docs/git-fetch) ）
+
+<br/>
+### 「 pull 跟 fetch 差在哪？ 」
+其實剛剛在介紹 fetch 時就有小小的破梗了。<br/>
+沒錯，我們常用的 pull 就是 fetch 的再進化版！<br/>
+`git pull` = `git fetch` + `git merge`
+
+再來看一次圖片示意：<br/>
+【 分支原本的樣子 】
+![](https://i.imgur.com/2bdJddC.png)
+我的組員更新了遠端檔案，所以我 `$ git pull` 了檔案下來<br/>
+【 pull 後兩個 tag 都往前推了一格 】
+![](https://i.imgur.com/IChwlPI.png)
+
+至於不想要 merge 想用 rebase 的話只要在 pull 後面加上 rebase 就完成了！<br/>
+```
+$ git pull --rebase
+```
+<br/>
+### 小小總結
+`fetch` -> 將遠端分支更新回本地<br/>
+`pull` -> 將遠端分支更新回本地並和名稱相同的本地分支 merge
+
+---
+
+參考資料：
+- git<br/>
+[https://git-scm.com/docs/git-pull](https://git-scm.com/docs/git-pull)<br/>[https://git-scm.com/docs/git-fetch](https://git-scm.com/docs/git-fetch)
+- 為你自己學 Git<br/>
+[https://gitbook.tw/](https://gitbook.tw/)
+
+
+
+

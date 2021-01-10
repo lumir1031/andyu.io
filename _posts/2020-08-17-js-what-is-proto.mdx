@@ -1,0 +1,70 @@
+---
+title: "[ JavaScript ] 把 __proto__ 剝開吧！"
+date: "2020-08-17"
+categories: "JavaScript"
+excerpt: "在 JavaScript 內物件可以透過 prototype 自己定義方法，而物件 new 出來的實體要使用這些方法，就需要透過原型鏈 ( `__proto__` ) 來找到上層 prototype 內定義的屬性。"
+---
+在 JavaScript 內物件可以透過 prototype 自己定義方法，而物件 new 出來的實體要使用這些方法，就需要透過原型鏈 ( `__proto__` ) 來找到上層 prototype 內定義的屬性。
+
+當我們想在陣列內增加數字，第一個想到的就是可以透過 `push()` 來達成：
+```javascript
+var a = [1, 2, 3];
+a.push(4);
+
+console.log(a) // [1, 2, 3, 4]
+```
+但明明我們沒有幫 `a` 定義，為什麼會有 `push` 方法可以用勒？<br/>
+只要打開瀏覽器進入開發者工具，透過 console 來執行就可以知道為什麼了！
+
+先建立一個陣列 `[1, 2, 3]` ，點開回傳值旁的小小箭頭，並將整串資料拉到最下面，會看到一個 `__proto__: Array`，這代表什麼？
+
+![](https://i.imgur.com/ZToKtfm.gif)
+
+依照 `__proto__` ( 原型鏈 ) 的概念，每個物件內都一定存在一個 `__proto__` ，當我們透過建構函數 new 出一個實體時，就能夠依循著原型鏈去找到原型 prototype 內的屬性。
+
+所以根據上面的說法，我們可以確認 `[1, 2, 3]` 是從建構函數 Array `new` 出來的，只要能在 `Array.prototype` 內找得到 `push` 方法，`[1, 2, 3]` 能用藉由從媽媽 ( Array ) 那邊繼承來的 `push` 將 `4` 推進並產生新的陣列。
+
+![](https://i.imgur.com/0n7zWyQ.gif)
+
+但人總是充滿好奇的，這時候我就會思考那 Array 又是從哪來的勒？<br/>
+繼續回到剛剛的範例，既然提到了每個「物件」都會存在 `__proto__` ， 那 Array 本身也是一個物件，自然也可以在裡面的 `Array.prototype` 找到  `__proto__` （ 有點像洋蔥一層一層的 ），而 Array 是從 Object 新增出來的實體。
+
+![](https://i.imgur.com/HHyDEXU.png)
+
+既然 Object 都被找出來了，那麼應該就會發現，想再透過 `Object.prototype` 的原型鏈去找上一層時，只會一直在 Object 內繞圈圈。
+
+因此可以將 **Object 視為所有物件的最頂層**，而我們平常看到的 function undefine 就是原型鏈一層一層去找，直到最後 `Object.prototype` 都找不到的話就會執行錯誤 TypeError !
+<br/>
+<br/>
+
+#### 總結一下
+
+▍**正常可以透過 `__proto__` 找到方法的例子**
+```javascript
+var a = [1, 2, 3];
+a.push(4);
+
+console.log(a) // [1, 2, 3, 4]
+```
+由於 `[1, 2, 3]` 是 `new Array` 出來的實體，所以透過 `__proto__` 在 `Array.prototype` 中找到了 `push` 方法：
+
+![](https://i.imgur.com/FPHNR04.png)
+
+
+▍**無法透過 `__proto__` 找到方法的例子**
+```javascript
+var a = [1, 2, 3];
+a.hello();
+
+console.log(a) // TypeError: a.hello is not a function
+```
+由於 `hello` 並沒有在 `Array.prototype` 跟 `Object.prototype` 的屬性中，所以藉由 `__proto__` 一層一層下去找卻找不到任何東西，最後回報錯誤：
+
+![](https://i.imgur.com/rRL0rNf.png)
+
+
+---
+
+參考資料：
+- `MDN Object.prototype.__proto__`
+[https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/Object/proto](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/Object/proto)

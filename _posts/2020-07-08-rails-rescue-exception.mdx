@@ -1,0 +1,98 @@
+---
+title: "[ Rails ] 例外處理 Exception 及 rescue"
+date: "2020-07-08"
+categories: "Rails"
+excerpt: "人森總有成功跟失敗的時候，程式當然也有，成功固然是好，但知道失敗在哪裡也是很重要的事情。在 Ruby 內我們可以透過 rescue 跟 raise exception 來產生例外的狀況，並給予產生的錯誤特定的訊息。"
+---
+人森總有成功跟失敗的時候，程式當然也有，成功固然是好，但知道失敗在哪裡也是很重要的事情。在 Ruby 內我們可以透過 rescue 跟 raise exception 來產生例外的狀況，並給予產生的錯誤特定的訊息。
+
+Ruby 透過 `begin...end` 來觸發例外機制，並且搭配 `rescue` 指派異常的訊息：
+```ruby
+  begin
+    #...要執行的程式內容
+    ketsudon.buy
+  rescue
+    #...發生錯誤時要執行的內容
+    puts "摳摳不夠"
+  end
+```
+
+當 rescue 在接收到錯誤時，就會噴出一段 Exception。<br/>
+一般沒有特別指定類別的話，rescue 就會自己搜尋 Exception 內所有有噴錯誤訊息的子類別。
+
+<br/>
+### 什麼是 Exception ?
+Exception 是在 `begin...end` 內與 `raise` 及 `rescue` 做訊息溝通的狀態。<br/>
+在 Exception 這類別內包含了許多我們熟悉的~~好朋友~~錯誤狀態，比如打錯字時噴的 SyntaxError 跟參數數量給不對時的 ArgumentError，更多詳細的子類別可以參考下面這張圖 (來源: rubylearning.com)：<br/>
+![](https://i.imgur.com/00Zra4P.jpg)
+
+至於該怎麼手動生產符合情境的 Exception，就需要透過 `raise` 。
+
+<br/>
+### 什麼是 raise ?
+
+當不符合某個判斷時，就會執行 `raise` 這個 method 來觸發 Exception。<br/>
+而 `raise` 在沒有指定類別時，都會預設產生 `RuntimeError` 這個類別的 exception 實體。
+```ruby
+  def buy_bendon(bendon, amount)
+    raise '炸豬排飯賣光了' if katsudon < 0  # => #<RuntimeError>
+    customer.pay!
+  end
+```
+另外值得提到的點，當 exception 產生時，我的這個 `bendon_shop` 就會直接~~爆炸~~取消執行，所以**只要炸豬排飯賣光了，我的客人就不會執行到付款**這個階段。
+
+如果我不想使用預設的類別，也可以在 `raise` 後面加上要使用的 `Exception` 的子類別。
+
+而當便當店越開越大的時候就會發現，我需要的錯誤訊息越來越多，這時候就可以**自訂**一些分類，來讓每道餐點都有專屬自己的錯誤訊息！
+```ruby
+  # 藉由繼承的方式，讓我們自訂的類別可以吃到 Exception 的功能
+  class KatsudonError < StandardError
+    def message
+      '炸豬排賣光了！！！'
+    end
+  end
+  class OyakodonError < StandardError
+    def message
+      '親子丼賣光了！！！'
+    end
+  end
+
+  def buy_bendon(bendon, amount)
+    raise KatsudonError if katsudon < 0
+    raise OyakodonError if oyakodon < 0
+    customer.pay!
+  end
+```
+
+
+<br/>
+### 執行 rescue
+了解 raise 後，再回到 `begin...rescue...end` 來看看。<br/>
+上面提過如果沒有指定類別，就會所有有噴錯誤的子類別，而要使用特定類別的話，只需要在 `rescue` 後面加上欲使用的類別名稱即可。
+
+```ruby
+  begin
+    customer.buy_bendon(bendon, amount)
+  rescue KatsudonError => error
+    puts error.message
+         # => #"炸豬排賣光了！！！"
+  rescue OyakodonError  => error
+    puts error.message
+         # => #"親子丼賣光了！！！"
+  rescue StandardError
+  end
+```
+上面例子要注意的是，如果將 `StandardError` 順序調到上層的話，`KatsudonError` 跟 `OyakodonError` 就不會產生作用了，意思跟預設的 `Exception` 一樣，父層包含了子層的所有的錯誤訊息，所以在用類別時需要注意 rescue 的順序是不是正確的。
+
+---
+
+參考資料：
+- raise<br/>
+[https://ruby-doc.org/core-2.5.1/Kernel.html#method-i-raise](https://ruby-doc.org/core-2.5.1/Kernel.html#method-i-raise)
+- Exception<br/>
+[http://rubylearning.com/satishtalim/ruby_exceptions.html](http://rubylearning.com/satishtalim/ruby_exceptions.html)
+- Custom Exceptions in Ruby<br/>
+[https://blog.appsignal.com/2018/07/03/custom-exceptions-in-ruby.html](https://blog.appsignal.com/2018/07/03/custom-exceptions-in-ruby.html)
+-
+
+

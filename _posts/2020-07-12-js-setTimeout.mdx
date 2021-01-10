@@ -1,0 +1,76 @@
+---
+title: "[ JavaScript ] setTimeout 之你說的三秒鐘不是三秒"
+date: "2020-07-12"
+categories: "JavaScript"
+excerpt: "在進行番茄鐘的專案時，除了得到計時器要使用 `setTimeout` 跟 `setInterval` 的提示外，也被提醒要注意 **「時間差」** 的問題，但因為我們當下沒遇到這困難，所以就當沒這回事了（咦）。不過這個「時間差」到底是怎麼產生的，還是讓我非常好奇，也順便透過文章紀錄一些我的心得"
+---
+在進行番茄鐘的專案時，除了得到計時器要使用 `setTimeout` 跟 `setInterval` 的提示外，也被提醒要注意 **「時間差」** 的問題，但因為我們當下沒遇到這困難，所以就當沒這回事了（咦）。不過這個「時間差」到底是怎麼產生的，還是讓我非常好奇，也順便透過文章紀錄一些我的心得。
+
+<br/>
+### 先說一下 setTimeout 跟 setInterval
+這兩個都是 **延遲了某段時間** 之後才去執行某件事情，不同的是 setTimeout 只會執行「一次」就結束，而 setInterval 會每隔一段時間「不斷重複」的去執行。
+
+舉個例子：
+![](https://i.imgur.com/HmpSSvo.gif)
+結果印出 `1`、`3`，最後才執行 setTimeout 的 hey 印出 `2`。<br/>
+因為延遲了，所以才比較晚印出來這件事情看起來好像非常合理，但 JavaScript 是屬於**單一執行緒**的語言，一次只會執行一段程式碼，照理來說應該要等到 setTimeout 執行完後才會印出 `3`，但他卻讓 `console.log(3)` 先行一步執行，而這就要提到「同步」(synchronous) 跟「非同步」(asynchronous)的問題了！<br/>
+
+<br/>
+### 「同步」(synchronous) 跟「非同步」(asynchronous)
+「同步」是很容易誤會的詞，他不是指所有事情同時間進行，而是比較像排隊結帳一樣，一個結束才換下一個。<br/>
+
+舉例來說，我是第一個進去店家吃晚餐的人，即使後面又陸續來了一些客人，但店家必須要等我吃飽喝足結帳後後才可以去招待下一位客人入店用餐。<br/>
+
+而「非同步」情況下，只要有客人，我就招待入座，而且每個客人上菜跟吃飯的速度都不一樣，先吃飽的人就可以先離開，這樣就造成整間店因為某個客人吃很慢，進而使得餐廳無法營運的情況。<br/>
+
+其中 setTimeout、setInterval、Ajax、Promise 都是屬於非同步的一份子，不隸屬於 JavaScript 單線程的一部份，而是跑在瀏覽器的 Web APIs 。但不管怎樣，JavaScript 在執行時，還是秉持著**一次只做一件事的精神**，因此就會需要應用到 Stack 跟 Queue 的部分了。
+
+<br/>
+### Stack 跟 Queue
+**Call Stack**<br/>
+JavaScript 在執行函式時，會依序將函式放入 call stack 中，並且執行完後就會消失，才會接著再執行下一個函式。<br/>
+舉例來說：
+
+```javascript
+  console.log(1);
+
+  function hey() {
+    console.log(2);
+  };
+  setTimeout(hey, 1000)
+
+  console.log(3);
+  console.log(4);
+```
+程式碼在 stack 內，會由下往上堆疊，並且從上往下執行。
+![](https://i.imgur.com/bXtO3Jy.gif)
+
+但如果把 `setTimeout` 在 stack 內執行的話，就會造成堵塞。<br/>
+想像在申請一份文件時，網站需要花費五分鐘去查詢資料，那你就會有五分鐘時間無法在網站上做任何事情，怎麼想使用者都會嚇到跑走。<br/>
+
+所以為了解決非同步 blocking 的問題，我們就會把 `setTimeout` 丟到 WebAPIs 去執行，並且當秒數執行完後，把要呼叫的函式先丟到 task queue 內做等待。
+
+<br/>
+**Task Queue**<br/>
+setTimeout 在 WebAPIs 計時結束後，就會將要執行的函式丟到 task queue 內去排隊，並且會等到 stack 內完全清空之後才會執行 queue 內的函式。
+![](https://i.imgur.com/CcLpIbe.gif)
+
+<br/>
+### 為什麼 setTimeout 的3秒不是3秒？
+平常在呼叫函式時，都會花上一些肉眼上無法察覺的時間，所以看起來時間上好像沒有任何的誤差。但當執行迴圈時，迴圈跑得次數一多，有可能花費比 setTimeout 的計算時間還要長。<br/>
+~~因為懶得再做動畫~~，所以直接用 Philip Roberts 大大的 loupe 做示範：<br/>
+![](https://i.imgur.com/xeQdyWN.gif)
+再看看程式執行的樣子<br/>
+![](https://i.imgur.com/3FbwlKQ.gif)
+當 setTimeout 執行完秒數後，call function 就會在 task queue 內排隊，也因為目前 stack 裡面的事件執行迴圈的時間大於 setTimeout，在 task queue 內排隊等待執行的 queue 就無法被移動到 stack 去執行，這也是為什麼 setTimeout 的3秒有時候不是3秒！
+
+---
+
+參考資料：
+- 0 陷阱！0 誤解！8 天重新認識 JavaScript！<br/>
+[https://www.tenlong.com.tw/products/9789864344130](https://www.tenlong.com.tw/products/9789864344130)
+- 所以說event loop到底是什麼玩意兒？| Philip Roberts | JSConf EU<br/>
+[https://www.youtube.com/watch?v=8aGhZQkoFbQ](https://www.youtube.com/watch?v=8aGhZQkoFbQ)
+-
+
+

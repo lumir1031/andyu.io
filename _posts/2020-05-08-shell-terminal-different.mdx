@@ -1,0 +1,46 @@
+---
+title:  "[ The Shell ] shell跟終端機 (Terminal) 有什麼不一樣"
+date: "2020-05-08"
+categories: "shell"
+excerpt: "在被暗黑力量推坑下，英文菜逼八挑戰了人生第一篇英文演講，很感謝他們貼心附上重點逐字稿能讓我更順利的了解這堂 The Shell 的應用..."
+---
+[Lecture 1: Course Overview + The Shell (2020)](https://www.youtube.com/watch?time_continue=695&v=Z56Jmr9Z34Q&feature=emb_title)
+
+在被暗黑力量推坑下，英文菜逼八挑戰了人生第一篇英文演講，很感謝他們貼心附上重點逐字稿能讓我更順利的了解這堂 The Shell 的應用，很多部分僅能以自己理解的方式來做筆記，如果有錯誤的地方還請予以指正。･ﾟ･(つдˋ)･ﾟ･
+
+<br>
+
+## Shell是什麼？
+Shell 其實就是一種程式，所以它包含 **variables(變數)** 、 **conditionals(條件判斷)** 、 **loops(迴圈)** 、 **functions(函式)** ，因此在執行 Shell 指令時，就是在編寫 Shell 直譯的一段程式碼，所以只要我們寫出不符合 Shell 指令的東西就會顯示錯誤。
+
+![](https://cdn-images-1.medium.com/max/1600/0*6v9SnDqrzVp96IfZ.png)
+<small>演講雖然是以 bash 為背景，但應該 zsh 也是相同道理吧(吧)</small>
+
+---
+## 什麼時候是用到shell的契機？
+當想執行一些視覺介面無法滿足我們需求的事時（比如刪掉看不見的東西、去不能去的地方、新增下載檔案，或是節省我們點擊滑鼠的次數XD），就需要 Shell 藉由 program 的方式來和電腦相互溝通，達成操作介面進行某些更核心的行為。
+
+---
+
+## 所以shell就是終端機(Terminal)嗎？
+終於來到本篇的重點，介紹了 shell ，那他到底跟終端機有什麼關係？我們透過終端機「**輸入**」shell 指令，再由 shell「**執行**」這段指令，最後再透過終端機「**顯示**」出來。
+
+就像在家裡，「媽媽」給「我」了一個去洗碗的指令，而「我」去做了洗碗這件事。這放在 shell 和終端機就像「shell」給了「終端機」一個洗碗指令，而「終端機」印出了洗碗這個指令的結果一樣。
+他們之間有什麼相同嗎？其實是完全不相同的東西，他們唯一有的關係就是「**互相合作**」來達成我給予的任務。
+
+<br>
+
+有另外整理一些比較常用到的 shell 指令，因為 medium 排版起來不是很方便，有興趣可以到：[https://hackmd.io/@yuchan/rkW8emPS8](https://hackmd.io/@yuchan/rkW8emPS8) 看看，有錯也請不吝指教T_T
+
+---
+資料參考：
+- Lecture 1: Course Overview + The Shell (2020)<br>
+[https://www.youtube.com/watch?v=Z56Jmr9Z34Q](https://www.youtube.com/watch?v=Z56Jmr9Z34Q)<br>
+[https://missing.csail.mit.edu/2020/course-shell/](https://missing.csail.mit.edu/2020/course-shell/)
+- 鳥哥的 Linux 私房菜<br>
+[http://linux.vbird.org/linux_basic/0320bash.php#redirect_redirect](http://linux.vbird.org/linux_basic/0320bash.php#redirect_redirect)
+- Gosh！原來用 Go 寫一個 Unix Shell 這麼簡單系列Day02-Shell 是什麼？
+[https://ithelp.ithome.com.tw/articles/](https://ithelp.ithome.com.tw/articles/)
+- 特別感謝：Google翻譯<br>
+[https://translate.google.com.tw/?hl=zh-TW](https://translate.google.com.tw/?hl=zh-TW)
+

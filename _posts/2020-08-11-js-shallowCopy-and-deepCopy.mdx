@@ -1,0 +1,105 @@
+---
+title: "[ JavaScript ] 淺拷貝跟深拷貝"
+date: "2020-08-11"
+categories: "JavaScript"
+excerpt: "在 [[ jQuery ] 原始碼新手村 - part 4](https://andyu.io/2020/08/10/jquery-study-source-code-part-4/) 有碰到 deep copy 的問題，但由於不瞭解又懶得查就被我略過惹（握拳），這次就藉這篇來還過去留下的債 ⊂彡☆))д`)"
+---
+在 [[ jQuery ] 原始碼新手村 - part 4](https://andyu.io/2020/08/10/jquery-study-source-code-part-4/) 有碰到 deep copy 的問題，但由於不瞭解又懶得查就被我略過惹（握拳），這次就藉這篇來還過去留下的債 ⊂彡☆))д`)
+
+在開始了解「拷貝」之前，最好要先知道 JS 內的基本型別及物件型別，並且了解這些型別是屬於「傳值」還是「傳址」的類型。
+<br/>
+<br/>
+
+### 基本型別
+基本型別包含：string、number、boolean、null、undefined ，這些在資料結構都是以**純值**形式作為存在，因此在資料傳遞上又會稱作「傳值」。<br/>
+指定變數資料時，我們給予相同的數值 `"豬排飯"`：
+```javascript
+var 午餐 = "豬排飯";
+var 晚餐 = "豬排飯";
+
+console.log( 午餐 === 晚餐 )  //true
+```
+在基本型別裡只要傳進去的「值」相同，在判斷時就會是相等的。
+<br/>
+<br/>
+
+### 物件型別
+物件型別理所當然是以物件為組成，但不同於**純值**的概念，他們比較像是一塊記憶體，而每塊記憶體或許內容相近，但卻是不一樣的個體。<br/>
+舉例來說，很多店都會賣豬排飯，但不是每間有賣豬排飯的都是同一間店。
+```javascript
+ var 吉野家 = { 餐點: "豬排飯" };
+ var 福勝亭 = { 餐點: "豬排飯" };
+
+ console.log( 吉野家 === 福勝亭 )  //false
+```
+而如果店家要開分店的話，通常菜單都會一模一樣：
+```javascript
+ var 吉野家創始店 = { 餐點: "豬排飯" };
+ var 吉野家分店 = 吉野家創始店
+ console.log( 吉野家分店 ); // { 餐點: "豬排飯" }
+
+ /* 本店想要把餐點更換成親子丼的話，分店也會跟著換 */
+ 吉野家創始店.餐點 = "親子丼"
+ console.log( 吉野家分店 ); // { 餐點: "親子丼" }
+```
+
+大概對資料型別有個概念後，就可以進到正題惹！
+<br/>
+<br/>
+
+### 淺拷貝 ( Shallow Copy )
+淺拷貝就是在物件拷貝後，只會以第一層的物件為拷貝對象，如果有第二層的物件，則會與舊的物件共用同個記憶體。
+
+```javascript
+  var restaurantA = {
+    今日特餐: {
+      餐點: "豬排飯",
+      價錢: 150
+    }
+  };
+
+  var restaurantB = {
+    今日特餐: {
+      餐點: "親子丼",
+    }
+  };
+
+  $.extend(restaurantA, restaurantB)
+  console.log(restaurantA) //     menu: { 餐點: "親子丼" }
+```
+`restaurantA` 在淺拷貝的過程中，第二層的物件因為跟新物件( `restaurantB` )共用同個記憶體，而且拷貝過程中前面的會被後面的給覆蓋，所以最後得出來的結果就會是 `restaurantB` 的內容。
+
+參考下面的圖片，或許會更清楚共用記憶體是什麼概念。
+
+![](https://i.imgur.com/fGbknja.png)
+
+
+### 深拷貝 ( Deep Copy )
+而深拷貝是完整的拷貝為兩個不同的物件，因此也不會共用**同個**記憶體。
+```javascript
+  var restaurantA = {
+    今日特餐: {
+      餐點: "豬排飯",
+      價錢: 150
+    }
+  };
+
+  var restaurantB = {
+    今日特餐: {
+      餐點: "親子丼",
+    }
+  };
+
+  $.extend(deep, restaurantA, restaurantB)
+  console.log(restaurantA) //     menu: { 餐點: "親子丼", 價錢 : 150}
+```
+由於 `restaurantA` 與 `restaurantB` 已經是兩個完全不同的個體了，所以今日特餐的物件並不會被新來的 `restaurantB` 覆蓋掉，只是透過整合將新的物件合併到舊的物件中。
+
+
+---
+
+參考資料：
+- JS-淺拷貝(Shallow Copy) VS 深拷貝(Deep Copy)<br/>
+[https://kanboo.github.io/2018/01/27/JS-ShallowCopy-DeepCopy/](https://kanboo.github.io/2018/01/27/JS-ShallowCopy-DeepCopy/)
+- 0 陷阱！0 誤解！8 天重新認識 JavaScript！<br/>
+[https://www.tenlong.com.tw/products/9789864344130](https://www.tenlong.com.tw/products/9789864344130)

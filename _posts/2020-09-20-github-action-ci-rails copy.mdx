@@ -1,0 +1,240 @@
+---
+title: "[ DevOps ] 在 Github Actions 上跑個 CI 吧"
+date: "2020-09-20"
+categories: "DevOps"
+excerpt: "「我想用 Github Actions 跑 CI 欸」「那是啥」，大概是這樣的開始"
+---
+「我想用 Github Actions 跑 CI 欸」「那是啥」，大概是這樣的開始。
+
+對於 CI 或是怎麼設定都是毫無方向，連過去曾設定過的 Travis 都已經失去記憶，這種充滿未知挑戰的內容還真是讓人有點期待，這篇將會記錄我怎麼成功挑戰這次的任務(X)。
+
+由於目的是要跑 Rspec，因此這次的筆記也會是以此為主。
+<br/>
+<br/>
+
+### GitHub Actions
+是近年 GitHub 自家推出的服務，主要用於 CI / CD，由於是把專案放在 GitHub 上，能夠將這些功能共同整合在一起，是相當不錯的選擇。<br/>
+[GitHub Actions Doc](https://docs.github.com/en/actions)
+
+<br/>
+
+### 如何建立 CI Workflows
+
+#### 1. 在專案內建立一個 `.github/workflows` 的資料夾
+不用想太多，就是在專案自己手動加上去！
+```shell
+# 白話文
+$ mkdir .github
+$ cd .github
+$ mkdir workflows
+```
+
+
+#### 2. 在 `.github/workflows` 內建立一個 `名字你自己想.yml`
+![](https://i.imgur.com/WRDECuW.png)
+
+#### 3. 打開 `.yml` 檔，開始想你要跑哪些流程
+如果跟我一樣不是很了解 CI 運作的方式，可以在 GitHub Action 內看一下官方提供的範例，並且試著跑跑看，或許會比較有方向。
+![](https://i.imgur.com/Lx1vEPE.png)
+嗯，跑起來的感覺跟在終端機打指令很類似，好像有點想法了(ゝ∀･)b
+![](https://i.imgur.com/L3d8jYl.png)
+
+繼續切入正題，<br/>
+▍step.1 設定 **跑 CI 的時機**，會在 branch 有更新或是 PR 要合併進哪個 branch 時執行。
+```yml
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+```
+▍step.2 在 `jobs` 內設定使用的資料庫
+
+```yml
+services:
+  postgres:
+    image: postgres:11
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+    options: >-
+      --health-cmd pg_isready
+      --health-interval 10s
+      --health-timeout 5s
+      --health-retries 5
+```
+
+▍step.3 在 `jobs` 內的 `steps` 內設定要執行哪些任務，<br/>
+因為 `step` 會是從上往下執行，所以一開始要先做環境設定：
+
+```yml
+# 執行環境設定，要跑 Rails 就需要先安裝 Ruby 及 Node
+
+- name: Setup Ruby
+  uses: ruby/setup-ruby@v1
+  with:
+    ruby-version: 2.7.1
+
+- name: Setup Node
+  uses: actions/setup-node@v1
+  with:
+    node-version: 12.16.2
+```
+
+▍step.4 開始安裝 Rails 內會用到的 gem 及套件：
+```yml
+# 透過 cache 可以減少不少 bundle 的時間
+- name: Cache Ruby Gems
+  uses: actions/cache@v2
+  with:
+    path: vendor/bundle
+    key: $ { { runner.os } }-gems-${ { hashFiles('**/Gemfile.lock') } }
+    restore-keys: |
+      $ { { runner.os } }-gems-
+
+- name: Install Dependencies
+  run: |
+    sudo apt-get -yqq install libpq-dev build-essential libcurl4-openssl-dev
+    bundle config path vendor/bundle
+    bundle install --jobs 4 --retry 3
+    yarn install
+```
+
+▍step.5 給 CI 一個專屬的 `database.yml` ，但為了避免與專案正式使用的 `yml` 打架，會以更改檔名來覆蓋原本檔案的方式，來設定測試用的資料庫：
+
+```yml
+- name: Setup Test Database
+  env:
+    RAILS_ENV: test
+    PGHOST: localhost
+    POSTGRES_USER: postgres  # <-- POSTGRES_USER
+    POSTGRES_PASSWORD: postgres # <-- POSTGRES_PASSWORD
+  run: |
+    cp config/database.yml.ci config/database.yml
+    rake db:create db:migrate
+```
+`database.yml` 在設定上時有遇到一些小地雷，要注意這些環境變數，是不是名稱相同！
+```yml
+# config/database.yml.ci 檔案內容
+test:
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  database: Campus_test
+  host:     <%= ENV.fetch('PGHOST',  'localhost') %>
+  username: <%= ENV.fetch('POSTGRES_USER', nil) %> # <-- POSTGRES_USER
+  password: <%= ENV.fetch('POSTGRES_PASSWORD', nil) %> # <-- POSTGRES_PASSWORD
+  port:     <%= ENV.fetch('PG_PORT', 5432) %>
+```
+
+▍step.6 開始跑 Rspec
+
+```yml
+- name: Run Tests
+  env:
+    PGHOST: localhost
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    RAILS_ENV: test
+  run: bin/rspec
+```
+如果這步驟在跑 `rspec` 或 `bin/rspec` 時都是 command not found 的話，可以透過下面的指令，讓 rspec 生存在這個專案內。
+
+```shell
+$ bundle binstubs rspec-core
+```
+
+<br/>
+
+### 總結
+差不多就是這樣，很感謝網路上各方大大已經整理了很詳細的資源給我複製貼上試試看的機會，讓我最後能夠順利看到綠色勾勾இдஇ
+
+![](https://i.imgur.com/8ZmwAix.png)
+
+
+最後也貼一份自己執行過後沒有問題的整理：
+
+```yml
+name: CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.1
+
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.16.2
+
+      - name: Cache Ruby Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${ { runner.os } }-gems-${ { hashFiles('**/Gemfile.lock') } }
+          restore-keys: |
+            ${ { runner.os } }-gems-
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get -yqq install libpq-dev build-essential libcurl4-openssl-dev
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+          yarn install
+
+      - name: Setup test database
+        env:
+          RAILS_ENV: test
+          PGHOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        run: |
+          cp config/database.yml.ci config/database.yml
+          rake db:create db:migrate
+
+      - name: Run tests
+        env:
+          PGHOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          RAILS_ENV: test
+        run: bin/rspec
+```
+
+以上！
+
+---
+
+參考資料：
+- Github Actions for Ruby on Rails CI <br/>
+[https://medium.com/@OwenTran/github-workflow-for-rails-ci-34209a53d19e](https://medium.com/@OwenTran/github-workflow-for-rails-ci-34209a53d19e)
+- Building a Rails CI pipeline with GitHub Actions <br/>
+[https://boringrails.com/articles/building-a-rails-ci-pipeline-with-github-actions/](https://boringrails.com/articles/building-a-rails-ci-pipeline-with-github-actions/)
+- Rails 專案搭配 Github Actions 進行 RSpec 自動化測試 <br/>
+[https://blog.niclin.tw/2019/10/31/building-a-rails-ci-piepline-and-run-rspec-on-github-actions/](https://blog.niclin.tw/2019/10/31/building-a-rails-ci-piepline-and-run-rspec-on-github-actions/)

@@ -1,0 +1,77 @@
+---
+title: "[ JavaScript ] 閉包"
+date: "2020-08-20"
+categories: "JavaScript"
+excerpt: "初次聽見閉包除了以為是在罵人外，就覺得只是將變數宣告在函式內而已，所以把變數放在函式內就能稱作閉包嗎？透過這篇文章，我會紀錄到底他有什麼特別以及什麼時候會使用到。"
+---
+初次聽見閉包除了以為是在罵人外，就覺得只是將變數宣告在函式內而已，所以把變數放在函式內就能稱作閉包嗎？透過這篇文章，我會紀錄到底他有什麼特別以及什麼時候會使用到。
+
+## 函式與閉包？
+
+**▍先說說函式**<br/>
+函式就是最常看到也最頻繁使用的 function，而要特別提到的是 **scope（範疇或作用域）**。
+每個函式都會產生作用域，我很喜歡 Huli 大大對作用域的解釋：
+>>**「作用域就是一個變數的生存範圍，一旦出了這個範圍，就無法存取到這個變數」**
+
+```javascript
+function scope () {
+  var a = 10; // a 被困在 scope 函式內
+};
+console.log(a); // 所以 a is not defined
+```
+
+**▍再說說閉包**<br/>
+其實閉包本身就是函式的一環，或是可以說函式就是閉包。<br/>
+函式會產生作用域，而閉包就是利用這個作用域來讓 **變數** 「進不來」也「出不去」。
+
+但出不去到底是什麼意思咧，來舉個最常見的計數器當例子：
+```javascript
+function closure () {
+  var count = 0;
+  function exeClosuer(){
+    count += 1;
+    console.log(count)
+  };
+  return exeClosuer
+};
+
+var func = closure ();
+func(); // 1  執行第一次
+func(); // 2  執行第二次
+func(); // 3  執行第三次
+```
+
+在執行 `func()` 時，函式 closure 透過 `return` 來執行 exeClosuer ，而變數 `count` 再被 +1 後的值就會被關在 `closure` 函式內出不去，藉由這方式就能記憶住 `count` 總共被執行了幾次。
+
+除此之外，即使執行相同的函式，只要宣告變數不同，執行的結果將會不一樣。
+
+```javascript
+function closure () {
+  var count = 0;
+  function exeClosuer(){
+    count += 1;
+    console.log(count)
+  };
+  return exeClosuer
+};
+
+var funcA = closure ();
+var funcB = closure ();
+
+funcA(); // 1  執行第一次
+funcA(); // 2  執行第二次
+funcA(); // 3  執行第三次
+
+funcB(); // 1  執行第一次
+funcB(); // 2  執行第二次
+```
+
+藉由閉包的方式，不只不會污染到 global ，還能記憶要執行完後得到的值。
+
+---
+
+參考資料：
+- 所有的函式都是閉包：談 JS 中的作用域與 Closure<br/>
+[https://github.com/aszx87410/blog/issues/35](https://github.com/aszx87410/blog/issues/35)
+- 深入淺出瞭解 JavaScript 閉包（closure）<br/>
+[https://pjchender.blogspot.com/2017/05/javascript-closure.html](https://pjchender.blogspot.com/2017/05/javascript-closure.html)

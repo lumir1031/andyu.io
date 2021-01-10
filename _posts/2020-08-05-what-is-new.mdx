@@ -1,0 +1,83 @@
+---
+title: "[ JavaScript ] new 到底在做什麼"
+date: "2020-08-05"
+categories: "JavaScript"
+excerpt: "在 Ruby 的世界裡，我們會透過類別 new 出一個實體，但是在 JavaScript 並沒有類別與實體的概念，那他的 new 又是在做什麼呢？"
+---
+在 Ruby 的世界裡，我們會透過類別 new 出一個實體，但是在 JavaScript 並沒有類別與實體的概念，那他的 new 又是在做什麼呢？
+
+舉例來說，玩遊戲前都需要先建立一個角色，由於每個角色的職業及素質都會有所不同，因此在建立角色前，都會提供屬性給玩家去做個人化設定。
+
+而這些屬性在 JavaScript 裡，我們可以利用 **建構子函數 (constructor function)** 建立一個 `character` 物件，讓他們存活在裡面：
+```javascript
+function character(name, job, gender) {
+  this.name = name;
+  this.job = job;
+  this.gender = gender
+  this.sayHello = function () {
+    console.log("hello")
+  };
+};
+```
+知道有哪些屬性後，就可以開始建立角色，由於我是雷姆教，所以第一個角色就獻給雷姆！<br/>
+```javascript
+var Remu = character("Remu", "Maid", "female");
+console.log(Remu)
+```
+開開心心想按下建立角色，但卻發生了令人難過的事：
+
+![](https://i.imgur.com/LNUJkvN.png)
+
+**咦，為什麼雷姆會不存在？**<br/>
+由於 `character` 沒有回傳值 (return) ，所以沒有任何東西會回傳給函式，就會得到 `undefined` ，因此只要加上 return 的值，就可以解釋這個問題了。
+
+![](https://i.imgur.com/4sD37VO.png)
+
+除此之外，函式內的 this 並不是指向 `character` 而是 global
+
+![](https://i.imgur.com/vLR0rGZ.png)
+
+因此要讓 `character` 內的 this 能夠指向函式本身的話，就要仰賴 `new` 的力量！
+<br/>
+<br/>
+
+### 所以 new 會做什麼？
+當使用 `new` 時，就會建立一個新的物件，以現在的例子，就會創造出一隻「新的角色」，並且這隻新角色擁有原訂設定該有的屬性值。
+
+試著在函式內再 `console.log(this)` 一次，這個 this 就會指向 `new` 出來的 `character` 函式本身了。
+
+再借用雷姆的力量建立一次角色：
+```javascript
+var Remu = new character("Remu", "Maid", "female");
+console.log(Remu)
+```
+這次按下建立角色，就會是我們想要的答案了
+![](https://i.imgur.com/vWnHFT6.png)
+
+看到 `console.log` 出來的內容是一包物件，這就表示我們可以透過 `.` 的方式去取得單獨的資訊：
+```javascript
+console.log(Remu.name) // Remu
+console.log(Remu.job) // Maid
+```
+而因為是一個全新的物件，所以即使我在 Remu 的 `charactor` 內增加其他的屬性，原本的函式或是其他新增的物件也不會受到影響：
+
+![](https://i.imgur.com/1w1j5nD.png)
+
+除此之外，不管有沒有 return 回傳值，他都會回傳 this 本身回來。
+![](https://i.imgur.com/jV4kdXN.png)
+
+---
+
+結論一下 **new** 到底做了些什麼：
+- 在呼叫 `new` 時會產生一個新物件 `{  }`
+- 該物件會連結到 new 的運算子本身
+- 函式內的 this 會指向函式自己
+- 不管有沒有 return 值，函式最後都會回傳 this 回來
+
+---
+
+參考資料：
+- 建構子函數的使用<br/>
+[https://reurl.cc/205Xv9](https://reurl.cc/205Xv9)
+- new operator<br/>
+[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new)

@@ -1,0 +1,65 @@
+---
+title: "[ Rails ] On Writing Software (well?) #1: Pilot Episode / 內容心得"
+date: "2020-05-08"
+categories: Rails
+excerpt: "我們透過註解可以更清楚的了解某段 code 執行的意義是什麼，但我們使用註解的時候有想過，怎麼不透過註解就能讓整段 code 更具可讀性嗎？"
+---
+我們透過註解可以更清楚的了解某段 code 執行的意義是什麼，但我們使用註解的時候有想過，怎麼不透過註解就能讓整段 code 更具可讀性嗎？
+
+影片連結：
+[On Writing Software (well?) #1: Pilot Episode](https://www.youtube.com/watch?v=H5i1gdwe1Ls)
+
+DHH 這部影片雖然短短的，但透過一些實例就能理解寫程式時怎樣實現可讀性的問題，以及怎樣寫更適合 Rails 的環境。
+
+如果理解上有不對的地方也歡迎留言給我，您的指正是我成長的助力இдஇ
+
+## 範例1
+
+![](https://i.imgur.com/k8AQHCS.png)
+上面這段範例類似一個防呆機制，能有 30 秒可以猶豫是否要刪除掉某個紀錄。
+
+而這次舉例目的是因為紫色的那段註解，並不是在解釋一些非約束性的條件，只是在解釋那個神秘的數字 `"30"` 是什麼（而 `.seconds` 是 rails 內 ActiveSupport 的一種 Addition ，我們可以替換不同的 Addition（如 hours 、 minutes ））。
+我們不明白那 `30秒` 代表的是做什麼事情等待 30 秒，所以給了他註解。
+![](https://i.imgur.com/BIPxeSd.png)
+
+那為何不給他一個容易閱讀的變數呢？
+給予 `30.second` 一個**變數**來取代註解，讓程式碼變得更容易閱讀，這樣不用看註解也能夠明確知道我這段程式碼在做什麼事情。
+![](https://i.imgur.com/UHFrFHz.png)
+
+-
+
+知道變數內容是固定的，就不需要放在 method 裡面，讓每次應用這個 method 就需要重新跑過一次，但是把變數放在 method 之外的話我們就取不到這個變數，所以給他常數的話可以就能夠順利的把值帶到 method 裡面！
+
+![](https://i.imgur.com/L95f1yt.png)
+
+
+而且為了讓程式碼閱讀起來方便，我們通常會將宣告的變數跟要取用的方法放在附近，這樣就能很清楚的知道放進 method 的這個替代品是什麼，以後要回來閱讀、修改時就能清楚地知道當初這段 code 在做什麼了。
+
+<hr>
+
+## 舉例2
+
+![](https://i.imgur.com/ZWFk31e.png)
+
+上面的範例註解表示了：**不管是create還是從資料庫找最後的結果都會是一樣的**。
+
+但這個行為在Rails透過預設方法就可以做完這整件事，藉由上面那段註解可知我們要做的行為是 create 跟 find ：
+
+`create` => 原本設定不用變動
+`where(person: person).take` = `find`
+
+合併！
+
+`create_or_find_by person: person`
+
+這樣不用註解就能直接表達建立或是找出資料這件事情，這個做法也更貼近 Rails 環境期望我們所要寫出來的東西。
+
+![](https://i.imgur.com/aiXH4Ls.png)
+
+---
+
+參考資料：
+- On Writing Software (well?) #1: Pilot Episode
+[https://www.youtube.com/watch?v=H5i1gdwe1Ls&app=desktop](https://www.youtube.com/watch?v=H5i1gdwe1Ls&app=desktop)
+- RailsGuides
+[https://guides.rubyonrails.org/index.html](https://guides.rubyonrails.org/index.html)

@@ -1,0 +1,86 @@
+---
+title: "[ jQuery ] 原始碼新手村 - part 2"
+date: "2020-07-27"
+categories: "JavaScript"
+excerpt: "[ 原始碼新手村 Part2 ] jQuery 的 typeof module 和 module.exports 是在判斷什麼？"
+---
+[ 原始碼新手村 Part2 ] jQuery 的 typeof module 和 module.exports 是在判斷什麼？
+
+
+jQuery 需要在正常的環境下執行，因此就要需要配合不同環境去做修正，而我們可以透過 `typeof` 去看 `module` 的類型是什麼來知道 jQuery 是用什麼管道來執行的：
+```javascript
+(function (global, factory) {
+  "use strict";
+  if (typeof module === "object" && typeof module.exports === "object") {
+    // For CommonJS and CommonJS-like environments where a proper `window`
+    // is present, execute the factory and get jQuery.
+    // For environments that do not have a `window` with a `document`
+    // (such as Node.js), expose a factory as module.exports.
+    // This accentuates the need for the creation of a real `window`.
+    module.exports = global.document ?
+      factory(global, true)
+      : function (w) {
+          if (!w.document) {
+            throw new Error("jQuery requires a window with a document");
+          }
+          return factory(w);
+        };
+  } else {
+    factory(global);
+  }
+})(typeof window !== "undefined" ? window : this, function (window, noGlobal) {
+});
+```
+
+### Module 與執行環境
+module 要被判定為 object 就需要透過 `require` 來加入 module（模組）。<br/>
+`(typeof module === "object" && typeof module.exports === "object")`
+
+而 require 跟 module.exports 只會執行在 node.js 下執行，因此我們如果想要讓他們能夠在**瀏覽器**上順利的執行，就需要仰賴 CommonJS 為模組建立的規則。
+
+確認完載入的環境後，就先來看看當判斷為 `true` 的狀況會是怎樣：
+
+```javascript
+  module.exports = global.document ?
+      factory(global, true) : function (w) {
+          if (!w.document) {
+            throw new Error("jQuery requires a window with a document");
+          }
+          return factory(w);
+        };
+```
+在執行時，確認 `global` 是否物件是否包含 `document`，如果**包含**的話，就會直接執行 jQuery；
+
+如果**不包含**的話，就會回傳一個帶有 `w` 參數的函式，由於 `document` 的執行會伴隨著 `window` 存在，所以回傳的這個函數，就會需要模擬 window 的環境（如 Browserify），讓 document 的執行能夠成功。但如果還是無法做出一個這樣的環境（通常會是瀏覽器過舊而不知支援），就會丟出 Error 訊息。
+
+
+文件註解也寫得蠻清楚：
+```javascript
+// For CommonJS and CommonJS-like environments where a proper `window`
+// is present, execute the factory and get jQuery.
+// For environments that do not have a `window` with a `document`
+// (such as Node.js), expose a factory as module.exports.
+// This accentuates the need for the creation of a real `window`.
+// e.g. var jQuery = require("jquery")(window);
+```
+
+至於是使用 `<script>` 標籤引入 jQuery 的話，由於未 require 進任何的 module，所以其值即為 undefined。這時候就會進入 `else` 的狀態內執行 `factory(global)` 的函式。
+```javascript
+ } else {
+  factory( global );
+ }
+```
+
+藉由這樣的方式，就可以避免 jQuery 在不對的地方執行或是瀏覽器不支援的情況下，能夠有適當的防護機制。
+
+下一篇就要進到最大包的 factory 內了，到底 jQuery 是如何建構一個執行的對象呢？
+
+---
+
+參考資料：
+- jQuery source code<br/>
+[https://code.jquery.com/](https://code.jquery.com/)
+- JQuery library module export<br/>
+[https://stackoverflow.com/questions/30080464/jquery-library-module-export](https://stackoverflow.com/questions/30080464/jquery-library-module-export)
+- Confusing code, global object vs. DOM window vs. fake DOM window<br/>
+[https://github.com/jquery/jquery/issues/3426](https://github.com/jquery/jquery/issues/3426)

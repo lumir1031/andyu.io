@@ -1,0 +1,86 @@
+---
+title: "[ JavaScript ] First Class Function 一級函式"
+date: "2020-09-07"
+categories: "JavaScript"
+excerpt: "以前在上 JavaScript 時很常聽到老師會一直說「函數是一等公民」，以前還以為是自己取的小綽號，結果還真的有 First Class Function 這個說法！"
+---
+以前在上 JavaScript 時很常聽到老師會一直說「函數是一等公民」，以前還以為是自己取的小綽號，結果還真的有 First Class Function 這個說法！
+
+## 一級函式
+一級函式（first-class function）是指在程式語言中，函數被當作「頭等公民」。這意味著，函數可以作為別的函數的參數、函數的回傳值，賦值給變數或儲存在資料結構中。
+<br/>
+<br/>
+
+### 1. 指定變數的值為函數
+將函數指定為變數後，要使用時只需要對該變數進行 `()` 執行（invoke）。
+```javascript
+const helloWorld = function(){
+  console.log("Hello, world!")
+}
+helloWorld(); // Hello, world!
+```
+<br/>
+
+### 2. 將函數當作參數傳入另一個函數
+將函數當作參數時，要特別注意需要 `()` 執行。
+```javascript
+function hello(){
+  return "hello";
+}
+
+function greeting(sayHello){
+  console.log(sayHello);
+}
+
+greeting(hello());
+```
+<br/>
+
+### 3. 將函數當作另一個函數的回傳值
+除了在變數指定時執行外，也可以利用立即函數方式，呼叫即執行。
+```javascript
+const hello = function () {
+  return function () {
+    console.log("Hello");
+  }();
+}
+const sayHello = hello;
+sayHello(); // Hello
+```
+而當一個函數回傳另一個函數時，我們又會稱之為 **「高階函數」**。<br/>
+其中 `map` 常會被大家拿來當作一個非常經典的例子：
+```javascript
+const arr1 = [1, 2, 3];
+const arr2 = arr1.map(item => item * 2);
+console.log(arr2);
+```
+---
+
+一級函數讓寫程式變得更彈性，讓解決問題時有更多的方法。因此即使是對一般型別（布林、字串、數值等等）做的事，也能夠對函數做。
+
+**但為什麼函數可以那麼自由？**
+
+![](https://i.imgur.com/LAhywWW.png)
+
+因為函數本身為「物件 (Object)」，所以它有屬性及方法能使用，也由於有傳址的特性，因此可以被移動、複製甚至是傳入別的東西。
+
+舉例來說，只需要在函數後面透過 `.` 就能夠增添新屬性：
+```javascript
+function hello() {
+  console.log("Hello");
+};
+hello(); // Hello
+
+hello.taiwanese = "你好";
+console.log(hello.taiwanese); // 你好
+```
+
+至於物件這些屬性是怎麼來的，可以參考我過去寫的 [把 __proto__ 剝開吧！](https://andyu.io/2020/08/17/js-what-is-proto/)。
+
+---
+
+參考資料：
+- WIKI - 頭等函數<br/>
+[https://zh.wikipedia.org/wiki/%E5%A4%B4%E7%AD%89%E5%87%BD%E6%95%B0](https://zh.wikipedia.org/wiki/%E5%A4%B4%E7%AD%89%E5%87%BD%E6%95%B0)
+- JavaScript 全攻略：克服 JS 的奇怪部分<br/>
+[https://www.udemy.com/course/javascriptjs/](https://www.udemy.com/course/javascriptjs/)

@@ -1,0 +1,49 @@
+---
+title: "[ Rails ] 用個 ActiveRecord::Enum 來做狀態切切切切換"
+date: "2020-05-22"
+categories: "Rails"
+excerpt: "想要對某個 model 定義狀態的切換，何不試試使用 ActiveRecord::Enum！"
+---
+想要對某個 model 定義狀態的切換，何不試試使用 ActiveRecord::Enum！
+
+在做專案時為了要能夠將任務切換兩種狀態使用了enum，也順便紀錄一下自己踩的蠢問題。
+如果內容有任何問題，還請留言給我，您的指正是我成長的助力(꒦ິ⌑꒦ີ)
+
+
+1. 首先我們透過 migration 加開一個欄位存放狀態
+```ruby
+class AddStatusToTask < ActiveRecord::Migration[6.0]
+  def change
+    add_column :tasks, :status, :integer, :default => 0
+  end
+end
+```
+
+2. 在要使用的 model 內宣告
+```ruby
+class Task < ApplicationRecord
+	enum status: {doing: 0 , done: 1 }
+end
+```
+
+這邊特別要注意的是在 `add_column` 時如果狀態的 `value` 要接的是 0 或 1 的話 記得欄位屬性要用 `integer` ，要接字串的話要用 `string` 以此類推... （雖然看起來是蠢話，但小的還是踩到這個雷了orz）
+
+Rails 也附上了幾個方便的 Scope 讓使用上能更加快速
+```ruby
+task.doing!
+task.doing? # => true
+task.status  # => "doing"
+
+task.done!
+task.doing? # => false
+task.status  # => "done"
+```
+
+雖然enum用起來很方便，但之後如果要更改順序，或在已經定義的狀態下插入其他的狀態就很容易發生錯誤，比如想在 `doing` 跟 `done` 中間加 `hey` 那麼 `done` 的 value 就會變成 3 ， `hey` 就會替補為 2 ，因此使用時要多注意！
+
+
+---
+
+參考資料：
+- Ruby on Rails API
+[https://api.rubyonrails.org/v5.2.3/classes/ActiveRecord/Enum.html](https://api.rubyonrails.org/v5.2.3/classes/ActiveRecord/Enum.html)

@@ -1,0 +1,83 @@
+---
+title: "[ JavaScript ] 嚴格模式之這樣先不要 "
+date: "2020-07-20"
+categories: "JavaScript"
+excerpt: "JavaScript 有時候會有不少比較有(不)彈(嚴)性(謹)的地方，可能會造成變數被蓋掉或是一些神奇情況，透過嚴格模式就能讓一些不良的用法不會默默的消失或結束，可以直接拋錯找到問題！"
+---
+JavaScript 有時候會有不少比較有(不)彈(嚴)性(謹)的地方，可能會造成變數被蓋掉或是一些神奇情況，透過嚴格模式就能讓一些不良的用法不會默默的消失或結束，可以直接拋錯找到問題！
+
+<br/>
+
+### 怎麼使用嚴格模式？
+ECMAScript 5 提供開發者語法嚴格、語法受限的模式 (strict mode)。<br/>
+我們可以使用在檔案一開始或是 function 的一開始放上 `"use strict"` 就能開始嚴格糾正一些比較不優的寫法。
+
+至於哪些是會被紅牌出局用法的呢？<br/>
+1. **未宣告**的變數
+2. **未宣告**的物件
+3. **刪除** 變數、物件、函式、屬性
+4. 一些 **保留字** / **關鍵字** 無法被宣告為變數
+5. **8進位**數字或是有**逃脫符號**的數字
+6. 未宣告的物件 / 變數使用 `this`
+
+但由於使用一般模式及嚴謹模式執行出來的結果有時候會不太一樣，所以使用時要注意是否會影響到整個專案的運行。
+
+<br/>
+
+### 為什麼是字串形式？
+在不支援嚴謹模式的瀏覽器中， `"use strict"` 就會被當成一般的字串 ，由於沒放入任何變數中，只會在印出值 (expressions 特性) 後就消失，不會對程式有任何的影響。
+
+<br/>
+### 作用範圍
+
+要使用 `"use strict"` 會依照宣告的位置而有不同：<br/>
+
+● 在檔案的開頭宣告：global scope 中的程式皆使用嚴謹模式<br/>
+
+```javascript
+"use strict";
+a = 1;
+
+(function () {
+  console.log(a);
+})();
+
+// ReferenceError: a is not defined
+// 在 global scope 內 a = 1 因為沒經過宣告，所以會產生錯誤
+```
+
+● 在函式開頭宣告：僅有 function scope 內的程式會執行嚴謹模式<br/>
+拿上面的例子繼續作延伸：
+
+```javascript
+a = 1;
+
+(function () {
+  "use strict";
+  console.log(a);
+})();
+
+// a = 1
+// 因為嚴格模式只在 function scope 內執行，所以在 a = 1 並不會報錯
+```
+如果把 `"use strict"` 放在 function 內，執行就會有錯誤。
+```javascript
+(function () {
+  "use strict";
+  	a = 1;
+  console.log(a);
+})();
+
+// ReferenceError: a is not defined
+```
+
+至於一定要放在最前面嗎？<br/>
+`"use strict"` 會從他以下開始執行，要能夠得到嚴格模式的洗禮，當然要放在最前面！
+
+---
+
+參考資料：
+- MDN web docs<br/>
+[https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Strict_mode](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Strict_mode)
+- JavaScript Use Strict<br/>
+[https://www.w3schools.com/js/js_strict.asp](https://www.w3schools.com/js/js_strict.asp)

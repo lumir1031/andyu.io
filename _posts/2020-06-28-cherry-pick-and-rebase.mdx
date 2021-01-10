@@ -1,0 +1,69 @@
+---
+title: "[ Git ] cherry-pick 之大人也可以做選擇！ "
+date: "2020-06-28"
+categories: "Rails"
+excerpt: "平常用 rebase 都會動到整條 branch 的 commit，但我就不想要全部都要，所以當只想要某一、兩個 commit 的時候我們就可以使用 cherry-pick !"
+---
+平常用 rebase 都會動到整條 branch 的 commit，但我就不想要全部都要，所以當只想要某一、兩個 commit 的時候我們就可以使用 cherry-pick ! ~~(之前一直以為是叫 cherry-pig 櫻桃豬QQ )~~
+
+<br/>
+### 所以到底什麼是 cherry-pick ?
+把你想要的那些 `commit` 撿起來放到你想要的 branch，或許也可以用複製貼上形容更貼切一點。<br/>
+
+【 舉個例子 】
+
+![](https://i.imgur.com/i5WanG1.png)
+
+我有一個 `Master` 跟 `Rabbit` 的 branch，我想要把 `Rabbit` branch 內的「買蘿蔔」的 commit，搬到 `Master` 上面，該怎麼辦？
+
+```shell
+$ git checkout master
+$ git cherry-pick fca4a9a
+```
+就可以在 `Master` 上得到我要的 commit 了
+
+![](https://i.imgur.com/x1fufJv.png)
+成功的把 `fca4a9a` 放到 `Master` 內，並且原來的 `Rabbit` branch 並沒有什麼影響。<br/>
+除此之外， cherry-pick 並不會規定你的 commit 先後順序要哪一個，想怎麼放就怎麼放！
+
+<br/>
+### 跟 rebase 有不一樣嗎？
+同樣都是把 commit 放到別的 branch 內，那他跟 rebase 差在哪裡？
+
+上面提到過我覺得 cherry-pick 像「複製貼上」，那 rebase 就是「剪下貼上」，而且 rebase 會移動整個 branch 的的 commit 以及 tag。
+
+【 回顧一下剛剛的圖片 】
+
+![](https://i.imgur.com/i5WanG1.png)
+我想要讓 `Rabbit` 跟 `Master` 做 rebase，並且我 `Rabbit` 的 commit 要在上層
+```shell
+$ git checkout rabbit
+$ git rebase master
+```
+![](https://i.imgur.com/R3shVb9.png)
+現在的 branch 變得只剩直直一條，因為原本的 `Rabbit` 連同 tag 都一起被撕掉放到 `Master` 內，所以原本的 `Rabbit` 的 commit 就會隱藏掉。所以並沒有什麼剪下貼上的事情，他們一直都在，只是看不看得到而已。
+
+<br/>
+### 結論一下
+
+不管是 cherry-pick 還是 rebase 兩者的本質是一樣的，都是改變 commit 的位置。
+
+`cherry-pick` 的幾個好處：
+1. 可以非常客製化自己想要的 commit
+2. 原本的 branch 不會受到影響
+
+`rebase` 的幾個好處：
+1. 一次範圍技，這些 commit 我全都要
+2. 隱藏掉原本的 branch 讓 Sourcetree 看起來非～～～常～～～乾淨又療癒
+
+
+
+---
+
+參考資料：
+- 為你自己學 Git<br/>
+[https://gitbook.tw/](https://gitbook.tw/)
+
+
+
+

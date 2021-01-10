@@ -1,0 +1,85 @@
+---
+title: "[ JavaScript ] return 與 console.log"
+date: "2020-08-06"
+categories: "JavaScript"
+excerpt: "自己很常 `console.log` 後印出某段 function 卻出現 `undefined` 的值，而且每次遇到都會一陣恐慌「 為什麼會有 undefined QQQQ 」，因為實在是太學不乖了，故以此篇紀念一直踩同樣雷的我。"
+---
+自己很常 `console.log` 後印出某段 function 卻出現 `undefined` 的值，而且每次遇到都會一陣恐慌「 為什麼會有 undefined QQQQ 」，因為實在是太學不乖了，故以此篇紀念一直踩同樣雷的我。
+![](https://i.imgur.com/Y3lKcwQ.png)
+<br/>
+<br/>
+
+### 舉個例子
+
+預設一個 function ，並且在裡面放入 `console.log` 來印出一段訊息，雖然印出了「今天月色真美」，不過下面卻附帶了一個 undefined，到底為什麼呢？
+
+
+![](https://i.imgur.com/vhsas78.png)
+<br/>
+<br/>
+
+### 談談 console.log
+`console.log` 可以在 node 或是開發者工具中印出我們想要執行的訊息。而且他不管是寫在 function 內或是 global 的環境都可以使用，這對於 debug、確認環節正確性等等都有相當大的幫助，並且在使用時並不會對程式碼造成任何影響，對開發者來說非常的方便。
+
+```javascript
+var a = 10
+console.log(a); // 10
+
+function moon(){
+  var you = "beautiful"
+  console.log(you);
+};
+console.log(moon); // [Function: moon]
+console.log(moon()); // beautiful, undefined
+
+var b = 2
+console.log( b + 2 );
+```
+藉由上面的例子，可以大概知道 `console.log` 的一些特點：
+1. 印出宣告的變數
+2. 印出 function 的名稱
+3. 印出 function 執行後得到的值
+4. 直接在裡面進行運算，並印出結果
+
+不過要特別注意的是，他們只是「印出來」的東西，**看得到卻用不到**。因此回到前面的舉例，不管是「今天月色好美」或是「beautiful」都只是被印出來，所以當 function 執行時，並沒有任何的**值**會被回傳給呼叫的函式，當然會顯示為 `undefined`。
+<br/>
+<br/>
+
+### 談談回傳值 return
+前面說到，要有回傳值，呼叫的函式才能夠收到回應。拿點名來舉例，當老師在教室點名，如果學生不在位置或是打瞌睡不回應，老師就會在點名簿上畫上「未到」的記號。
+
+而 `return` 就是為了要「回應老師」，避免被當作翹課不良仔，因此我們透過在 function 的**最後**加上 `return + 指定的內容`，讓整個呼叫事件可以成立。
+
+重拾一下原本回傳 `undefined` 的那些 function，並且加上 return 的值：
+```javascript
+/* 圖片舉例 */
+function sayHello() {
+  return "今天月色真美";
+};
+console.log(sayHello()); // 今天月色真美
+
+/* console.log 舉例 */
+function moon(){
+  var you = "beautiful"
+  console.log(you);
+  return you
+};
+console.log(moon()); // beautiful, beautiful
+```
+因為有了回傳值，所以 `console.log` 在印出執行完的 function 後，就不會再顯示 `undefined` 而是我們 `return` 進去的內容了。
+
+不過要特別注意的點是，`return` 會終止 function 的執行，所以只能夠放在 function 的**最後**，不然後面的方法或是宣告，都會直接被無視掉。
+
+![](https://i.imgur.com/v6sUJSX.png)
+
+**至於所有的 function 一定要都要有回傳值嗎？**<br/>
+沒有**一定**這件事，要去看開發時這個 function 需要達成哪些行為而定。<br/>
+不過 `console.log` 是建議當測試或 debug 結束後**一定**要記得拔掉，不然全世界的人都會看光光你印出來的東西！
+
+---
+
+參考資料：
+- return<br/>
+[https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/return](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/return)
+- console.log()<br/>
+[https://developer.mozilla.org/en-US/docs/Web/API/Console/log](https://developer.mozilla.org/en-US/docs/Web/API/Console/log)

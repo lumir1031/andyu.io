@@ -1,0 +1,69 @@
+---
+title: "[ JavaScript ] Function expressions 跟 Function statements"
+date: "2020-07-16"
+categories: "JavaScript"
+excerpt: "function expression 跟 function declaration(statements) 這兩種函式定義的方式，有什麼不一樣？"
+---
+[上一篇](https://andyu.io/2020/07/14/js-expressions-.statements/)提到了 `expressions` 跟 `statements` 的差別，剛好在拜讀 kuro 老師的 [008天](https://www.tenlong.com.tw/products/9789864344130) 時看到 function expression，順便也來記錄一下他跟 function declaration(statements) 這兩種函式定義的方式，有什麼不一樣？
+
+<br/>
+### Function Declaration
+
+**函式宣告**是最常見的一種函式定義方法：
+就像變數宣告 `var` 一樣，函式宣告開頭必須為 `function`，<br/>如果要使用的話，必須要呼叫 function 的名字。
+
+```javascript
+  function greeting(someone) {
+    console.log('hello ' + someone);
+  }
+```
+因為是屬於 function statements，所以並沒有要回傳任何的**值**給某個變數。<br/>
+函式宣告在建立時期，就會**提升（Hoisting）**定義出一個 function 為 `greeting` ，因此即使在 function 前面執行 `greeting` ，依然能夠成功執行。
+
+```javascript
+  greeting('world');
+
+  function greeting(someone) {
+    console.log('hello ' + someone);
+  }
+
+  // 印出 hello world
+```
+
+<br/>
+### Function Expression
+
+**函式運算式** 如同 expressions 一樣，是被 `=` 指定為某個變數的**值**，並且可以不用幫 function 取名字（即為匿名函式）。<br/>
+在要說他跟**函式宣告**有什麼不同之前，可以先看下面這個範例：
+```javascript
+  console.log(a);
+  var a = 1;
+
+  // undefined
+```
+很常在 **Hoisting** 會看到的問題，建立期的 `var a` 只會宣告 `a` 變數，因為不會指定任何的值，所以會預設為 `undefined`。
+
+同理，即使變數的值為 `function`，在執行 `greeting()` 時，`var greeing` 的狀態應該還是 `undefined`。<br/>
+所以執行 `greeting()` 時，就會顯示 TypeError。
+
+```javascript
+  greeting('world');
+
+  var greeting = function(someone) {
+    console.log('hello ' + someone);
+  }
+
+  // TypeError: greeting is not a function
+```
+
+
+---
+
+參考資料：
+- Astro Camp 課程內容<br/>
+[https://astro.5xruby.tw/](https://astro.5xruby.tw/)
+- 0 陷阱！0 誤解！8 天重新認識JavaScript！<br/>
+[https://www.tenlong.com.tw/products/9789864344130](https://www.tenlong.com.tw/products/9789864344130)
+
+
+

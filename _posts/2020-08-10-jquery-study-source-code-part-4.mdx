@@ -1,0 +1,116 @@
+---
+title: "[ jQuery ] 原始碼新手村 - part 4"
+date: "2020-08-10"
+categories: "JavaScript"
+excerpt: "[ 原始碼新手村 Part4 ] 上一篇提到了 jQuery 的 prototype，至於怎麼樣替他本身再擴充新功能呢"
+---
+[ 原始碼新手村 Part4 ] 上一篇提到了 jQuery 的 prototype，至於怎麼樣替他本身再擴充新功能呢？
+
+直接在 prototype 本身新增加功能並不是個好方法，不只可能破壞 jQuery 的主要結構，也可以有輕輕戳一下就死全場的狀況發生。
+
+而翻一下 jQuery 的原始碼，關於「擴充技能」有兩個長得非常相近的方法 `jQuery.extend` 及 `jQuery.fn.extend`，甚至在原始碼中也提到 `jQuery.extend = jQuery.fn.extend` 。
+
+嘿，所以他們兩個的作用是一樣的嗎？
+就讓這篇給他們一個澄清的機會吧。
+<br/><br/>
+
+### jQuery.fn.extend
+根據 jQuery 官網的描述，其功能為 `將物件的內容合併到 jQuery 的 prototype 內，並且在 jQuery 的實體上新增方法`。不知道 jQuery 的實體方法指的是什麼的話，可以參考 [Part 3](https://andyu.io/2020/08/03/jquery-study-source-code-part-3/) 提到的 `jQuery.fn.init` 部分。
+
+簡單來說，就是平常我們透過「選取器」來執行的方法。<br/>
+從下方的 checkbox 舉例來說，我擴充了一個 check 方法，只要我點下 checkbox 鈕後，就會執行擴充的 `check()` 方法。
+```html
+<label><input type="checkbox" name="foo"> Foo </label>
+
+<script>
+jQuery.fn.extend({
+  check: function() {
+    return this.each(function() {
+      this.checked = true;
+    });
+  },
+  uncheck: function() {
+    return this.each(function() {
+      this.checked = false;
+    });
+  }
+});
+
+$( "input[type='checkbox']" ).check();
+</script>
+```
+<br/>
+
+### jQuery.extend
+**`jQuery.extend( target, object1 [, objectN ] )`**<br/>
+根據 jQuery 官網的描述，將兩個或兩個以上的物件內容，合併至第一個物件中。
+
+舉例來說：
+```javascript
+  var obj1 = {
+    apple: 10,
+    banana: { price: 50, weight: 20 },
+    cherry: 5
+  }
+  var obj2 = {
+    banana: { price: 200 },
+    mango: 40
+  }
+
+  jQuery.extend(obj1, obj2)
+  console.log(obj1)
+
+  /* 合併之後 */
+  {
+    "apple": 10,
+    "banana": {"price":200},
+    "cherry": 5,
+    "mango": 40
+    }
+```
+合併後，如果物件內容重複的話，越前面的物件會被越後面的覆蓋掉（ `obj1` 被 `obj2` 吃掉 ）。但如果我想要保留 `banana` 的重量的話，就會需要在 `extend` 的參數內加點料：
+**`jQuery.extend( [deep ], target, object1 [, objectN ] )`**
+
+這個 `deep` 代表了什麼就下回再講（挖坑），但是他能夠讓 obj 內的屬性不會被強硬的被後面整個洗白白，只修改不同的地方。
+
+```javascript
+  jQuery.extend(true, obj1, obj2)
+  console.log(obj1)
+
+  /* 合併之後 */
+  {
+    "apple": 10,
+    "banana": {"price":200, weight: 20},
+    "cherry": 5,
+    "mango": 40
+    }
+```
+
+最後一定要提到的，就是在 `extend` 內只傳入一個物件參數的用法：<br/>
+**`jQuery.extend( object )`**
+
+在官方文件有提到 **An object to merge onto the jQuery namespace** ，而這個 namespace 的概念就有點像在物件內新增屬性，這樣就等於將屬性擴充至 jQuery 物件之中。
+<br/>
+<br/>
+
+### 結論
+
+說了那麼多，他跟前面的 `jQuery.fn.extend` 使用上到底有哪裡不一樣？<br/>
+這又要說回到 this 身上了，`jQuery.fn.extend` 指的會是 new 出來的實體本身，但 `jQuery.extend` 指的會是 jQuery 自己這個函式。
+
+舉例來說，`$.extend`、`$.ajax`、`$.each` 等等這些不需要經過「選取器」去尋找 DOM 元素，就可以直接透過 jQuery 函式執行的方法。
+
+所以即便 `jQuery.extend = jQuery.fn.extend` ，但兩者個 this 不同最後執行的方向也會有所不同。
+
+---
+
+參考資料：
+- jQuery source code<br/>
+[https://code.jquery.com/](https://code.jquery.com/)
+- jQuery API - jQuery.extend()<br/>
+[https://api.jquery.com/jquery.extend/#jQuery-extend-deep-target-object1-objectN](https://api.jquery.com/jquery.extend/#jQuery-extend-deep-target-object1-objectN)
+- jQuery API - jQuery.fn.extend()<br/>
+[https://api.jquery.com/jquery.fn.extend/](https://api.jquery.com/jquery.fn.extend/)
+- jQuery 2.0.3 源码分析core - 整体架构<br/>
+[https://www.cnblogs.com/aaronjs/p/3278578.html](https://www.cnblogs.com/aaronjs/p/3278578.html)
+-

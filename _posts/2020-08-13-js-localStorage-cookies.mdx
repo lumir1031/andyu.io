@@ -1,0 +1,63 @@
+---
+title: "[ JavaScript ] Local Storage 及 Cookie "
+date: "2020-08-13"
+categories: "JavaScript"
+excerpt: "身為一個前端俗，對於前端的資料儲存相當的陌生，而這次有機會玩了一下使用 Local Storage 的 Workshop，也趁機了解一下跟他很類似的 cookie 在幹嘛。"
+---
+身為一個前端俗，對於前端的資料儲存相當的陌生，而這次有機會玩了一下使用 Local Storage 的 Workshop，也趁機了解一下跟他很類似的 cookie 在幹嘛。
+<br/>
+<br/>
+
+### Local Storage
+顧名思義就是本地端儲存，或可以說是「儲存在使用者電腦的瀏覽器中」，而他也是公認最常也最方便使用的資料儲存方式，那他有什麼不錯的地方呢。
+
+**Local Storage 的特性：**
+1. 即使關閉瀏覽器，資料也不會消失。
+2. 儲存的資料沒有時效性，如果要刪除的話需要手動刪除。
+3. 儲存量約 5MB ，足以儲存一些不具有敏感資料的資訊。
+
+我們可以透過 JavaScript 來進行 local storage 的儲存，儲存的形式必須是以 `key, value` 為單位的 `字串` 。
+```javascript
+/* 取得資料 */
+localStorage.getItem("key", "value")
+
+/* 更新資料 */
+localStorage.setItem("key", "value");
+
+/*刪除資料*/
+localStorage.removeItem("key", "value");
+```
+<br/>
+
+### Cookie
+看起來像塊餅乾，但實際上是瀏覽器上的一個少量儲存空間。網頁在頁面切換時不會紀錄任何狀態，所以需要 cookie 來幫忙暫存一些資訊。所以瀏覽器為了與 server 互動，就會要透過 cookie 不斷的和 server 以 request/response 的方式來回傳送資料。
+
+**Cookie 的特性：**
+1. 即使關閉瀏覽器，資料也不會消失。
+2. 儲存資料的時效性是由「網站擁有者」決定的。
+3. 儲存空間約 4KB 左右，對於複雜的資料不易儲存。
+4. 常被拿來作為辨別用戶身份、廣告追蹤、購物車等等的資料儲存空間。
+5. 使用者可以修改 cookie 內容。
+
+cookie 雖然方便好用，但因為他能夠被使用者給修改及查看，所以通常會有一個叫 「session」的東西跟他做搭配。
+
+session 存在於 server 端，當網頁在進行 request/response 時，session 就會和 cookie 去做確認，看看送出請求的是否為同一個使用者。但由於網站並不會紀錄狀態，所以 cookie 會提供一個位置來存放 session key，這樣就不需要每跳轉一個頁面就登入一次（就是我們看到的登入狀態）。所以當清空 cookie 時，就等於將 session 也一起清掉（登出）。
+
+舉例來說，當去買炸雞排時，畫完菜單後店家會把菜單上的流水編號撕下來給我們，當餐點好時就會依照那個流水編號提醒我們去領餐。但是如果不小心把流水編號給撕掉了，店家就沒有依據可以去核對身份，也就拿不到雞排了QQ
+<br/>
+<br/>
+
+#### 結論
+雖然 cookie 跟 local storage 乍看之下什麼都可以儲存，真是太好方便了好棒棒，但是他們因為存在瀏覽器上，通常使用者只需要打開開發者工具，就很容易能對裡面的資料進行操作。所以像是密碼、信用卡資訊、個人隱私等等，都不會讓資訊存在前端，而是無法從外部拿不到資訊的後端。
+
+
+
+---
+
+參考資料：
+- wiki Cookie<br/>
+[https://zh.wikipedia.org/wiki/Cookie](https://zh.wikipedia.org/wiki/Cookie)
+- 淺談 Authentication 上集：Cookie 與 Session 介紹<br/>
+[https://medium.com/@vicxu/1da2d413afa2](https://medium.com/@vicxu/1da2d413afa2)
+- MDN Window.localStorage<br/>
+[https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
